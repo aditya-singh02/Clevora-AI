@@ -2,8 +2,7 @@ import React from 'react'
 import {Routes, Route} from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Auth from './pages/Auth.jsx'
-import {signInWithPopup} from 'firebase/auth'
-import { auth, provider } from './utils/firebase.js'
+
 
 function App() {
   return (

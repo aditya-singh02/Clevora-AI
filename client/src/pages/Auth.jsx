@@ -8,8 +8,8 @@ function Auth() {
 
   const handleGoogleAuth = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-       console.log(result.user);
+      const response = await signInWithPopup(auth, provider);
+       console.log(response); // Log the response from Firebase Authentication to see the user information and credentials returned after a successful sign-in.
     } catch (error) {
       console.error("Error during Google authentication:", error);
     }
