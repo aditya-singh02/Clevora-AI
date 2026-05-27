@@ -3,6 +3,7 @@ import {Routes, Route} from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Auth from './pages/Auth.jsx'
 
+export const ServerURL = import.meta.env.VITE_SERVER_URL || "http://localhost:8000";
 
 function App() {
   return (
