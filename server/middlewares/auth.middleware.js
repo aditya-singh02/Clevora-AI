@@ -16,7 +16,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
         // 3. Find the user in Mon goDB matching the decoded payload token id
-        const user = await User.findById(decodedToken?.userId).select("-firebaseUid"); // Exclude sensitive keys from passing forward
+        const user = await User.findById(decodedToken?.userId).select("__v"); // Exclude sensitive keys from passing forward
 
         if (!user) {
             throw new ApiError(401, "Invalid  token - User does not exist");

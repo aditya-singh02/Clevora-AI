@@ -4,9 +4,12 @@ import { auth, provider } from '../utils/firebase.js';
 import { signInWithPopup } from "firebase/auth";
 import axios from 'axios';
 import { ServerURL } from '../App.jsx';
+import { useDispatch } from 'react-redux';
 
 
 function Auth() {
+
+  const dispatch = useDispatch();
 
   const handleGoogleAuth = async () => {
     try {
@@ -19,11 +22,11 @@ function Auth() {
       // Send the user's name and email to the backend server for authentication and token generation.
       const result = await axios.post(`${ServerURL}/api/v1/auth/google`,
         { name, email }, { withCredentials: true });
-
-      console.log(result.data.data); // Log the response from Firebase Authentication to see the user information and credentials returned after a successful sign-in.
+      dispatch(setUserData(result.data))
 
     } catch (error) {
       console.error("Error during Google authentication:", error);
+      dispatch(setUserData(null))
     }
   }
 
