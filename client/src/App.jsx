@@ -2,6 +2,9 @@ import React from 'react'
 import {Routes, Route} from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Auth from './pages/Auth.jsx'
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const ServerURL = import.meta.env.VITE_SERVER_URL || "http://localhost:8000";
 
