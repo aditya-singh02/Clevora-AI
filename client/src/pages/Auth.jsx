@@ -5,6 +5,7 @@ import { signInWithPopup } from "firebase/auth";
 import axios from 'axios';
 import { ServerURL } from '../App.jsx';
 
+
 function Auth() {
 
   const handleGoogleAuth = async () => {

@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from "cors";
 import cookieParser from "cookie-parser"; 
-import router from "./routes/auth.route.js";
+import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.route.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -19,7 +20,8 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 app.use(cookieParser());  
 
-app.use("/api/v1/auth", router);  
+app.use("/api/v1/auth", authRouter);  // Mount the authentication routes at /api/v1/auth
+app.use("/api/v1/user", userRouter); // Mount the user routes at /api/v1/user
 
 
 export default app; 
