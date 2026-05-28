@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import dotenv from "dotenv";
+import interviewRouter from './routes/interview.route.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", authRouter);  // Mount the authentication routes at /api/v1/auth
 app.use("/api/v1/user", userRouter); // Mount the user routes at /api/v1/user
+app.use("/api/v1/interview", interviewRouter); // Mount the interview routes at /api/v1/interview
 
 
 export default app; 
