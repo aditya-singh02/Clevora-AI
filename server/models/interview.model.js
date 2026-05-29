@@ -54,6 +54,12 @@ const interviewSchema = new mongoose.Schema(
             type: String,
         },
 
+        resumeData: {
+            skills: [String],
+            projects: [{ title: String, description: String }],
+            education: String
+        },
+        
         questions: [questionSchema], // Array of questions with answers
 
         // Final report scores (filled after interview ends)

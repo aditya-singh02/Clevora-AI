@@ -5,6 +5,7 @@ import { signInWithPopup } from "firebase/auth";
 import axios from 'axios';
 import { ServerURL } from '../App.jsx';
 import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/userSlice.js';
 
 
 function Auth() {
@@ -23,7 +24,6 @@ function Auth() {
       const result = await axios.post(`${ServerURL}/api/v1/auth/google`,
         { name, email }, { withCredentials: true });
       dispatch(setUserData(result.data))
-
     } catch (error) {
       console.error("Error during Google authentication:", error);
       dispatch(setUserData(null))

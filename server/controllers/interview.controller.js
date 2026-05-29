@@ -4,6 +4,8 @@ import { ApiError } from "../utils/apiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import askAI from "../services/openRouter.service.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../models/user.model.js";
+import { Interview } from "../models/interview.model.js";
 
 
 //a. Analyze Resume Controller: This controller function is responsible for handling the analysis of a resume uploaded by the user. It performs several key steps:
@@ -98,10 +100,10 @@ const analyzeResume = asyncHandler(async (req, res) => {
             .status(200)
             .json(new ApiResponse(200, structuredData, "Resume analyzed successfully"));
     }
-    catch(error){
+    catch (error) {
         console.error("Error analyzing resume:", error);
 
-        if(req.file && fs.existsSync(req.file.path)) { // Check if the file exists before trying to delete it to avoid potential errors if the file was not created or has already been deleted.
+        if (req.file && fs.existsSync(req.file.path)) { // Check if the file exists before trying to delete it to avoid potential errors if the file was not created or has already been deleted.
             fs.unlinkSync(req.file.path);
         }
 
@@ -109,4 +111,190 @@ const analyzeResume = asyncHandler(async (req, res) => {
     }
 });
 
-export { analyzeResume }; 
+
+// b. startInterview Controller: This controller function is responsible for generating interview questions based on the candidate's profile and resume information and creating a new interview session. It performs several key steps:
+//1. It validates the required fields (role, experience, mode) from the request body and checks if the user has enough credits to generate questions.
+//2. It builds a user prompt string that includes the candidate's role, experience, interview mode, skills, projects, and resume details to provide context for the AI.
+//3. It prepares a messages array with a system message containing detailed instructions for the AI on how to generate relevant and appropriately difficult interview questions based on the candidate's profile.
+//4. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be an array of questions in JSON format.
+//5. It formats the questions received from the AI and creates a new "interview" record in the database with the generated questions and associated user information.
+//6. Finally, it deducts credits from the user's account after successfully creating the interview session and returns a successful response with the interview details or handles any errors that occur during the process
+const startInterview = asyncHandler(async (req, res) => {
+
+   
+       let { role, experience, mode, resumeText, resumeData } = req.body;
+
+       role = role?.trim();
+       experience = experience?.trim();
+       mode = mode?.trim();
+
+       // Validate required fields
+       if (!role || !experience || !mode) {
+           throw new ApiError(400, "Role, experience and mode are required")
+       }
+
+       const user = await User.findById(req.user._id);
+
+       if (!user) {
+           throw new ApiError(404, "User not found")
+       }
+
+       if (user.credits < 50) {
+           throw new ApiError(400, "Insufficient credits. Please purchase more to continue.")
+       }
+
+       // Build skills + projects string for AI context
+       const skillsList = resumeData?.skills?.join(", ") || "Not specified"
+
+       const projectsList = resumeData?.projects // it checks if resumeData and resumeData.projects exist, then it maps over the projects array to create a string representation of each project in the format "Project Title: Project Description". Finally, it joins all the project strings together with newline characters. If there are no projects, it defaults to "Not specified".
+           ?.map(p => `${p.title}: ${p.description}`)
+           .join("\n") || "Not specified"
+
+       const safeResume = resumeText.trim() || "None";
+
+       const userPrompt = `
+    Role: ${role}
+    Experience: ${experience}
+    Mode: ${mode}
+    Skills: ${skillsList}
+    Projects: ${projectsList}
+    Resume : ${safeResume}
+    `;
+
+       if (!userPrompt.trim()) {
+           throw new ApiError(400, "Prompt content is empty. Please provide valid input.")
+       }
+
+       const messages = [
+           {
+               role: "system",
+               content: `
+            You are a professional ${mode} interviewer at a top tech company
+            Speak in simple, natural english and avoid robotic or formal language to create a comfortable interview atmosphere for the candidate as if you are directly interviewing them.
+
+             Generate exactly 5 interview questions based on the candidate's profile.
+
+             Strictly return the response in JSON format as an array of questions, without any additional text or explanations.
+             Strict Rules:
+                - Each question should be unique and not overlap in content with the others.
+                - The questions should be relevant to the candidate's experience level and the role they are applying for.
+                - Each question must contain between 15 to 30 words to ensure they are detailed enough to evaluate the candidate effectively.
+                - Each question must be a single, clear sentence that can be easily understood by the candidate.
+                - Do not number them.
+                - Do not add explanations or justifications for the questions.
+                - Do NOT add extra text before or after.
+                - Keep language simple and conversational.
+                - Questions must feel practical and realistic.
+
+                Each question must follow this exact structure:
+                [
+                    {
+                        "question": "Your question here?",
+                        "difficulty": "easy",
+                        "timeLimit": 60
+                    }
+                ]
+                 Difficulty must be: "easy", "medium" or "hard"
+      
+                    timeLimit rules (in seconds):
+                    - easy   → 60  seconds
+                    - medium → 120 seconds
+                    - hard   → 180 seconds
+
+                Difficulty Guidelines:
+                - For Junior level: Focus on fundamental concepts, practical applications, and problem-solving skills relevant to the role. Avoid overly complex or theoretical questions.
+                - For Mid level: Include a mix of conceptual questions and practical scenarios that require deeper understanding and application of knowledge. Questions can be moderately complex.
+                - For Senior level: Emphasize strategic thinking, system design, and advanced problem-solving. Questions can be complex and may involve multiple steps or considerations.
+
+                Difficulty should be aligned with the candidate's experience level, ensuring that junior candidates are not overwhelmed and senior candidates are adequately challenged.
+
+                Difficulty distribution:
+                    - Question 1: easy   (warm-up)
+                    - Question 2: easy   (basic concept)
+                    - Question 3: medium (applied knowledge)
+                    - Question 4: medium (problem solving)
+                    - Question 5: hard   (deep understanding / tricky)
+
+                Make questions based on the candidate’s role, experience,interviewMode, projects, skills, and resume details.
+                `
+           }
+           ,
+           {
+               role: "user",
+               content: userPrompt
+           }
+       ];
+
+       const aiResponse = await askAI(messages);
+
+       if (!aiResponse || !aiResponse.trim()) {
+           throw new ApiError(500, "AI did not return any questions. Please try again.")
+       }
+
+       // Clean the AI response by removing any code block markers and trimming whitespace, then parse it as JSON to extract the structured array of questions.
+       const clean = aiResponse.replace(/```json|```/g, "").trim()
+       const questionsArray = JSON.parse(clean)
+
+       if (!Array.isArray(questionsArray) || questionsArray.length === 0) {
+           throw new ApiError(500, "AI failed to generate valid questions. Please try again.")
+       }
+
+       //Format the questions 
+       const formattedQuestions = questionsArray.map((q) => ({
+           question: q.question,
+           difficulty: q.difficulty,
+           timeLimit: q.timeLimit,
+       }))
+
+       // Create a new interview record in the database with the generated questions and associated user information. This will allow us to track the interview session and the questions that were asked to the candidate.
+       const interview = await Interview.create({
+           userId: req.user._id,
+           role,
+           experience,
+           mode,
+           resumeText: resumeText || "",
+           resumeData: {
+               skills: resumeData?.skills || [],
+               projects: resumeData?.projects || [],
+               education: resumeData?.education || ""
+           },
+           questions: formattedQuestions,
+           status: "Incomplete"
+       });
+
+       if (!interview) {
+           throw new ApiError(500, "Failed to create interview session")
+       }
+
+       //  Deduct credits AFTER successful creation
+       await User.findByIdAndUpdate(
+           req.user._id,
+           {
+               $inc: { credits: -50 }
+           });
+
+       // Clean up the questions array ONLY for the frontend response(Anti - Cheat)
+       const questions = interview.questions.map(q => ({
+           _id: q._id,
+           question: q.question,
+           difficulty: q.difficulty,
+           timeLimit: q.timeLimit
+       }));
+
+       return res
+           .status(201)
+           .json(new ApiResponse(
+               201,
+               {
+                   interviewId: interview._id,
+                   creditLeft: user.credits,
+                   userName: user.name,
+                   questions: questions
+               },
+               "Interview started successfully"
+           ))
+});
+
+
+
+export { analyzeResume, startInterview }; 
