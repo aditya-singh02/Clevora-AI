@@ -480,7 +480,7 @@ const endInterview = asyncHandler(async (req, res) => {
             throw new ApiError(403, "Unauthorized — This is not your interview")
         }
 
-        if (interview.status === "completed") {
+        if (interview.status === "Completed") {
             return res
                 .status(200)
                 .json(new ApiResponse(200, interview, "Interview was already marked as completed."));
@@ -507,7 +507,7 @@ const endInterview = asyncHandler(async (req, res) => {
         const averageCorrectness = totalQuestions > 0 ? totalCorrectness / totalQuestions : 0;
 
         interview.finalScore = finalScore; 
-        interview.status = "completed";
+        interview.status = "Completed";
         await interview.save();
 
         // The frontend can use the finalScore to show an overall rating, while the averageConfidence, averageCommunication, and averageCorrectness can be used to generate a detailed report showing the candidate's strengths and weaknesses in different areas based on their performance in the interview.

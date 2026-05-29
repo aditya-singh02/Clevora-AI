@@ -59,7 +59,7 @@ const interviewSchema = new mongoose.Schema(
             projects: [{ title: String, description: String }],
             education: String
         },
-        
+
         questions: [questionSchema], // Array of questions with answers
 
         // Final report scores (filled after interview ends)
@@ -71,7 +71,7 @@ const interviewSchema = new mongoose.Schema(
         // Interview status
         status: {
             type: String,
-            enum: ["Incomplete", "completed"],
+            enum: ["Incomplete", "Completed"],
             default: "Incomplete"
         }
 
