@@ -1,6 +1,13 @@
 import express from "express";
 import verifyJWT from "../middlewares/auth.middleware.js";
-import { analyzeResume, endInterview, startInterview, submitAnswer } from "../controllers/interview.controller.js";
+import { 
+    analyzeResume, 
+    endInterview, 
+    getInterviewReport, 
+    getMyInterviews, 
+    startInterview, 
+    submitAnswer 
+} from "../controllers/interview.controller.js";
 import upload from "../middlewares/multer.middleware.js";
  
 
@@ -25,6 +32,16 @@ interviewRouter.route("/submit-answer").post(
 interviewRouter.route("/end").post(
     verifyJWT,
     endInterview
+)
+
+interviewRouter.route("/get-my-interviews").get(
+    verifyJWT,
+    getMyInterviews
+)
+
+interviewRouter.route("/report/:interviewId").get(
+    verifyJWT,
+    getInterviewReport
 )
 
 export default interviewRouter;

@@ -8,15 +8,15 @@ import { User } from "../models/user.model.js";
 import { Interview } from "../models/interview.model.js";
 
 
-//a. Analyze Resume Controller: This controller function is responsible for handling the analysis of a resume uploaded by the user. It performs several key steps:
-//1. It checks if a file was uploaded using Multer middleware. If not, it throws an error indicating that a resume file is required.
-//2. It reads the uploaded PDF file into a buffer and converts it into a Uint8Array format that can be processed by the PDF parsing library (pdfjsLib).
-//3. It loads the PDF document using pdfjsLib and extracts text from each page of the PDF, concatenating it into a single string.
-//4. It cleans up the extracted text by replacing multiple whitespace characters with a single space and trimming any leading or trailing whitespace.
-//5. It prepares a messages array to send to the OpenRouter API, including a system message with instructions for extracting structured data from the resume and a user message containing the actual resume text.
-//6. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be in JSON format.
-//7. It parses the AI response into a JavaScript object and deletes the uploaded file from the server to free up storage space.
-//8. Finally, it returns a successful response with the structured data extracted from the resume or handles any errors that occur during the process.
+/* a. Analyze Resume Controller: This controller function is responsible for handling the analysis of a resume uploaded by the user. It performs several key steps:
+1. It checks if a file was uploaded using Multer middleware. If not, it throws an error indicating that a resume file is required.
+2. It reads the uploaded PDF file into a buffer and converts it into a Uint8Array format that can be processed by the PDF parsing library (pdfjsLib).
+3. It loads the PDF document using pdfjsLib and extracts text from each page of the PDF, concatenating it into a single string.
+4. It cleans up the extracted text by replacing multiple whitespace characters with a single space and trimming any leading or trailing whitespace.
+5. It prepares a messages array to send to the OpenRouter API, including a system message with instructions for extracting structured data from the resume and a user message containing the actual resume text.
+6. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be in JSON format.
+7. It parses the AI response into a JavaScript object and deletes the uploaded file from the server to free up storage space.
+8. Finally, it returns a successful response with the structured data extracted from the resume or handles any errors that occur during the process.*/
 
 const analyzeResume = asyncHandler(async (req, res) => {
 
@@ -112,13 +112,13 @@ const analyzeResume = asyncHandler(async (req, res) => {
 });
 
 
-// b. startInterview Controller: This controller function is responsible for generating interview questions based on the candidate's profile and resume information and creating a new interview session. It performs several key steps:
-//1. It validates the required fields (role, experience, mode) from the request body and checks if the user has enough credits to generate questions.
-//2. It builds a user prompt string that includes the candidate's role, experience, interview mode, skills, projects, and resume details to provide context for the AI.
-//3. It prepares a messages array with a system message containing detailed instructions for the AI on how to generate relevant and appropriately difficult interview questions based on the candidate's profile.
-//4. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be an array of questions in JSON format.
-//5. It formats the questions received from the AI and creates a new "interview" record in the database with the generated questions and associated user information.
-//6. Finally, it deducts credits from the user's account after successfully creating the interview session and returns a successful response with the interview details or handles any errors that occur during the process
+/* b. startInterview Controller: This controller function is responsible for generating interview questions based on the candidate's profile and resume information and creating a new interview session. It performs several key steps:
+1. It validates the required fields (role, experience, mode) from the request body and checks if the user has enough credits to generate questions.
+2. It builds a user prompt string that includes the candidate's role, experience, interview mode, skills, projects, and resume details to provide context for the AI.
+3. It prepares a messages array with a system message containing detailed instructions for the AI on how to generate relevant and appropriately difficult interview questions based on the candidate's profile.
+4. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be an array of questions in JSON format.
+5. It formats the questions received from the AI and creates a new "interview" record in the database with the generated questions and associated user information.
+6. Finally, it deducts credits from the user's account after successfully creating the interview session and returns a successful response with the interview details or handles any errors that occur during the process */
 const startInterview = asyncHandler(async (req, res) => {
 
 
@@ -296,16 +296,15 @@ const startInterview = asyncHandler(async (req, res) => {
 });
 
 
-// After the interview is completed, we will update the interview record with the candidate's answers and the AI's evaluation of those answers, including communication skills and correctness scores. This will allow us to generate a final report for the candidate based on their performance in the interview.
-// c. submitAnswer Controller: This controller function is responsible for handling the submission of a candidate's answer to an interview question, evaluating the answer using AI, and updating the interview record with the candidate's response and the AI's evaluation scores and feedback. It performs several key steps:
-//1. It validates the required fields (interviewId, questionId, answer, timeTaken) from the request body.
-//2. It retrieves the interview record from the database using the provided interview ID and checks if it exists.
-//3. It finds the specific question within the interview's questions array using the provided question ID and checks if it exists.
-//4. It updates the question with the candidate's answer and time taken to answer, and if the answer is empty or exceeds the time limit, it assigns a score of 0 and provides appropriate feedback.
-//5. If the answer is valid, it prepares a messages array to send to the OpenRouter API, including a system message with instructions for evaluating the candidate's answer based on confidence, communication skills, and correctness, and a user message containing the question and the candidate's answer.
-//6. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be in JSON format containing the evaluation scores and feedback.
-//7. It updates the question with the candidate's answer and the AI's evaluation scores and feedback, and saves the updated interview record in the database.
-//8. Finally, it returns a successful response with the AI's feedback or handles any errors that occur during the process.
+/* c. submitAnswer Controller: This controller function is responsible for handling the submission of a candidate's answer to an interview question, evaluating the answer using AI, and updating the interview record with the candidate's response and the AI's evaluation scores and feedback. It performs several key steps:
+1. It validates the required fields (interviewId, questionId, answer, timeTaken) from the request body.
+2. It retrieves the interview record from the database using the provided interview ID and checks if it exists.
+3. It finds the specific question within the interview's questions array using the provided question ID and checks if it exists.
+4. It updates the question with the candidate's answer and time taken to answer, and if the answer is empty or exceeds the time limit, it assigns a score of 0 and provides appropriate feedback.
+5. If the answer is valid, it prepares a messages array to send to the OpenRouter API, including a system message with instructions for evaluating the candidate's answer based on confidence, communication skills, and correctness, and a user message containing the question and the candidate's answer.
+6. It calls the askAI function to send the messages to the OpenRouter API and receive the AI response, which is expected to be in JSON format containing the evaluation scores and feedback.
+7. It updates the question with the candidate's answer and the AI's evaluation scores and feedback, and saves the updated interview record in the database.
+8. Finally, it returns a successful response with the AI's feedback or handles any errors that occur during the process.*/
 const submitAnswer = asyncHandler(async (req, res) => {
     try {
         const { interviewId, questionId, answer, timeTaken } = req.body;
@@ -463,6 +462,12 @@ const submitAnswer = asyncHandler(async (req, res) => {
 });
 
 
+/* d. endInterview Controller: This controller function is responsible for ending an interview session, calculating the final score based on the candidate's performance, and returning a comprehensive report of the interview. It performs several key steps:
+1. It validates the required field (interviewId) from the request body.
+2. It retrieves the interview record from the database using the provided interview ID and checks if it exists and belongs to the logged-in user.
+3. If the interview is already marked as completed, it returns the existing interview data without recalculating the score.
+4. It calculates the final score by averaging the scores of all questions, including confidence, communication, and correctness scores, and updates the interview record with the final score and marks it as completed.
+5. Finally, it returns a successful response with a comprehensive report of the interview, including the final score, average confidence, communication, and correctness scores, as well as a question-wise breakdown of the candidate's performance, or handles any errors that occur during the process.*/
 const endInterview = asyncHandler(async (req, res) => {
     try {
         const { interviewId } = req.body;
@@ -533,5 +538,119 @@ const endInterview = asyncHandler(async (req, res) => {
     }
 })
 
+/* e. getMyInterviews Controller: This controller function is responsible for retrieving the interview history of the logged-in candidate. 
+1. It retrieves the most recent interview session for the logged-in user from the database, sorting the interviews by creation date in descending order to ensure that the most recent interview is returned first.
+2. It selects only the necessary fields (role, experience, mode, finalScore, status, createdAt) to return in the response, which helps to optimize the data sent to the frontend and maintain privacy by not exposing unnecessary information.
+3. If no interview sessions are found for the user, it throws an error indicating that there are no interview sessions available.
+4. Finally, it returns a successful response with the retrieved interview history or handles any errors that occur during the process. */
+// Returns all past interviews for the logged -in user — for the history / dashboard page.
+const getMyInterviews = asyncHandler(async (req,res) => {
+    try{
+        const interview = await Interview.find({ userId: req.user._id } )
+        .sort({ createdAt: -1 }) // Sort by creation date, most recent first
+            .select("role experience mode finalScore status createdAt"); // Select only necessary fields for the interview history list
 
-export { analyzeResume, startInterview, submitAnswer, endInterview }; 
+        if (!interview) {
+            throw new ApiError(404, "No interview sessions found for this user")
+        }
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, interview, "Interview history retrieved successfully"))
+
+    }catch(error){
+        throw new ApiError(500, `Failed to get interviews. Please try again. ${error.message}`)
+    }
+})
+
+/* f. getInterviewReport Controller: This controller function is responsible for retrieving a comprehensive report of a specific interview session for the logged-in candidate.
+1. It validates the required field (interviewId) from the request parameters.
+2. It retrieves the interview record from the database using the provided interview ID and checks if it exists and belongs to the logged-in user.
+3. It calculates the average confidence, communication, and correctness scores based on the candidate's performance in each question of the interview.
+4. Finally, it returns a successful response with a comprehensive report of the interview, including the final score, average confidence, communication, and correctness scores, as well as a question-wise breakdown of the candidate's performance, or handles any errors that occur during the process. */
+const getInterviewReport = asyncHandler(async (req,res) => {
+    try{
+        const { interviewId } = req.params; // We get the interviewId from req.params because in the route we will have something like /interview/report/:interviewId, which allows us to pass the specific interview ID in the URL when requesting the report for that interview session.
+
+        if (!interviewId) {
+            throw new ApiError(400, "Interview ID is required")
+        }
+
+        //Fetch the target interview record from MongoDB
+        const interview = await Interview.findById(interviewId);
+
+        if (!interview) {
+            throw new ApiError(404, "Interview session not found")
+        }
+
+        // Security — only owner can view
+        if (interview.userId.toString() !== req.user._id.toString()) {
+            throw new ApiError(403, "Unauthorized — This is not your interview")
+        }
+        
+        const totalQuestions = interview.questions.length;
+
+        let totalConfidence = 0;
+        let totalCommunication = 0;
+        let totalCorrectness = 0;
+
+        let totalAnswered =0;
+
+        interview.questions.forEach((q) => {
+            if(q.answer && q.answer.trim()!==""){
+                totalAnswered++;
+            }
+            totalConfidence += q.confidence || 0;
+            totalCommunication += q.communication || 0;
+            totalCorrectness += q.correctness || 0;
+        })
+
+        // finalScore is already present in database
+        const averageConfidence = totalQuestions > 0 ? totalConfidence / totalQuestions : 0;
+        const averageCommunication = totalQuestions > 0 ? totalCommunication / totalQuestions : 0;
+        const averageCorrectness = totalQuestions > 0 ? totalCorrectness / totalQuestions : 0;
+
+        // Structure a highly organized analytics response block
+        const performanceReport = {
+            metaData:{
+                interviewId: interview._id,
+                status: interview.status,
+                createdAt: interview.createdAt,
+                totalQuestions,
+                totalAnswered,
+            } ,
+            overallScores: {
+                finalScore: Number(interview.finalScore || 0).toFixed(1),
+                confidence: Number(averageConfidence.toFixed(1)),
+                communication: Number(averageCommunication.toFixed(1)),
+                correctness: Number(averageCorrectness.toFixed(1)),
+            },
+            questionWisePerformance: interview.questions.map(q => ({
+                questionId: q._id,
+                question: q.question,  
+                difficulty: q.difficulty,
+                timeLimit: q.timeLimit,
+                answer: q.answer,
+                scores: {
+                    score: q.score || 0,
+                    confidence: q.confidence || 0,
+                    communication: q.communication || 0,
+                    correctness: q.correctness || 0,
+                },
+                feedback: q.feedback || "No assessment criteria evaluated.",
+            }))     
+        };
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, 
+                performanceReport,
+            "Interview report retrieved successfully"))
+
+    }catch(error){
+        throw new ApiError(500, `Failed to get interview report. Please try again. ${error.message}`)
+    }
+})
+
+
+export { analyzeResume, startInterview, submitAnswer, endInterview, getMyInterviews, getInterviewReport }; 
