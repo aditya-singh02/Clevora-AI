@@ -1,6 +1,6 @@
 import express from "express";
 import verifyJWT from "../middlewares/auth.middleware.js";
-import { analyzeResume, startInterview } from "../controllers/interview.controller.js";
+import { analyzeResume, startInterview, submitAnswer } from "../controllers/interview.controller.js";
 import upload from "../middlewares/multer.middleware.js";
  
 
@@ -16,6 +16,11 @@ interviewRouter.route("/resume").post(
 interviewRouter.route("/start").post(
     verifyJWT, 
     startInterview
+)
+
+interviewRouter.route("/submit-answer").post(
+    verifyJWT,
+    submitAnswer
 )
 
 export default interviewRouter;
