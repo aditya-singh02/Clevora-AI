@@ -139,7 +139,7 @@ const startInterview = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found")
     }
 
-    if (user.credits < 50) {
+    if (user.credits < 20) {
         throw new ApiError(400, "Insufficient credits. Please purchase more to continue.")
     }
 
@@ -414,14 +414,14 @@ const submitAnswer = asyncHandler(async (req, res) => {
             "feedback": "short human constructive feedback"
             }   `
 
-            }, 
+            },
             {
                 role: "user",
                 content: `
                 Question: ${currentQuestion.question}
                 Answer: ${answer}
                 `
-            }     
+            }
         ];
 
         const aiResponse = await askAI(messages);
@@ -432,7 +432,7 @@ const submitAnswer = asyncHandler(async (req, res) => {
 
         const clean = aiResponse.replace(/```json|```/g, "").trim()
         const evaluation = JSON.parse(clean);
-        
+
         // Update the question with the candidate's answer and the AI's evaluation scores and feedback. 
         currentQuestion.answer = answer;
         currentQuestion.confidence = evaluation.confidence;
@@ -446,23 +446,92 @@ const submitAnswer = asyncHandler(async (req, res) => {
         return res
             .status(200)
             .json(new ApiResponse(200,
-                { 
+                {
                     feedback: evaluation.feedback, //only return feedback in the response, the frontend can use this to show feedback immediately after each answer submission, while the scores can be used later to generate a final report after the interview is completed.
 
                     //for testing in postman I return full evalutation 
-                            // finalScore: evaluation.finalScore,
-                            // confidence: evaluation.confidence,
-                            // communication: evaluation.communication,
-                            // correctness: evaluation.correctness,
-                 },
+                    // finalScore: evaluation.finalScore,
+                    // confidence: evaluation.confidence,
+                    // communication: evaluation.communication,
+                    // correctness: evaluation.correctness,
+                },
                 "Answer submitted successfully"
             ))
-    }catch(error){
-        console.error("Error submitting answer:", error);
+    } catch (error) {
         throw new ApiError(500, `Failed to submit answer. Please try again. ${error.message}`)
-    } 
+    }
 });
 
- 
 
-export { analyzeResume, startInterview, submitAnswer }; 
+const endInterview = asyncHandler(async (req, res) => {
+    try {
+        const { interviewId } = req.body;
+
+        if (!interviewId) {
+            throw new ApiError(400, "Interview ID is required")
+        }
+
+        const interview = await Interview.findById(interviewId);
+        if (!interview) {
+            throw new ApiError(404, "Interview session not found")
+        }
+
+        if (interview.userId.toString() !== req.user._id.toString()) {
+            throw new ApiError(403, "Unauthorized — This is not your interview")
+        }
+
+        if (interview.status === "completed") {
+            return res
+                .status(200)
+                .json(new ApiResponse(200, interview, "Interview was already marked as completed."));
+        }
+        // Calculate finalScore
+        // Average of all question scores (answered or not)
+        const totalQuestions = interview.questions.length;
+
+        let totalScore = 0;
+        let totalConfidence = 0;
+        let totalCommunication = 0;
+        let totalCorrectness = 0;
+
+        interview.questions.forEach((q)=>{
+            totalScore += q.score || 0;
+            totalConfidence += q.confidence || 0;
+            totalCommunication += q.communication || 0;
+            totalCorrectness += q.correctness || 0;
+        })
+
+        const finalScore = totalQuestions > 0 ? totalScore / totalQuestions : 0;
+        const averageConfidence = totalQuestions > 0 ? totalConfidence / totalQuestions : 0;
+        const averageCommunication = totalQuestions > 0 ? totalCommunication / totalQuestions : 0;
+        const averageCorrectness = totalQuestions > 0 ? totalCorrectness / totalQuestions : 0;
+
+        interview.finalScore = finalScore; 
+        interview.status = "completed";
+        await interview.save();
+
+        // The frontend can use the finalScore to show an overall rating, while the averageConfidence, averageCommunication, and averageCorrectness can be used to generate a detailed report showing the candidate's strengths and weaknesses in different areas based on their performance in the interview.
+        return res
+            .status(200)
+            .json(new ApiResponse(200, {
+                finalScore: Number(finalScore.toFixed(1)), // Round to 1 decimal place for better readability in the report
+                confidence: Number(averageConfidence.toFixed(1)),
+                communication: Number(averageCommunication.toFixed(1)),
+                correctness: Number(averageCorrectness.toFixed(1)),
+                questionWiseScore: interview.questions.map(q => ({
+                    question: q.question,
+                    answer: q.answer,
+                    score: q.score || 0,
+                    feedback: q.feedback || "No feedback",
+                    confidence: q.confidence || 0,
+                    communication: q.communication || 0,
+                    correctness: q.correctness || 0
+                })),
+            }, "Interview ended and scored successfully"))
+    } catch (error) {
+        throw new ApiError(500, `Failed to end interview. Please try again. ${error.message}`)
+    }
+})
+
+
+export { analyzeResume, startInterview, submitAnswer, endInterview }; 
