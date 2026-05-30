@@ -22,10 +22,12 @@ app.use(cookieParser());
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import interviewRouter from './routes/interview.route.js';
+import paymentRouter from './routes/payment.route.js';
 
 app.use("/api/v1/auth", authRouter);  // Mount the authentication routes at /api/v1/auth
-app.use("/api/v1/user", userRouter); // Mount the user routes at /api/v1/user
-app.use("/api/v1/interview", interviewRouter); // Mount the interview routes at /api/v1/interview
+app.use("/api/v1/user", userRouter); 
+app.use("/api/v1/interview", interviewRouter); 
+app.use("/api/v1/payment", paymentRouter); 
 
 
 export default app; 
