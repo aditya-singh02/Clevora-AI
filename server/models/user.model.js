@@ -1,22 +1,56 @@
 import mongoose from "mongoose";
 import { Schema } from 'mongoose';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new Schema(
     {
         name: {
             type: String,
             required: true,
+            trim: true,
         },
         email: {
             type: String,
             required: true,
             unique: true,
-        }, 
-        // we don't need password because we are using google auth, so we will not store password in our database
-        credits:{
+            trim: true,
+            lowercase: true,
+        },
+        password: {
+            type: String,
+            default: null,
+        },
+        authProvider: { // to track whether the user signed up with google, email or both
+            type: String,
+            enum: ["google", "email", "both"],
+            default: "email"
+        },
+        credits: {
             type: Number,
             default: 100, // we will give 100 credit to every user when they sign up 
+        },
+
+        // Forgot password fields
+        resetPasswordToken: {
+            type: String,
+            default: null
+        },
+        resetPasswordExpiry: {
+            type: Date,
+            default: null
         }
-    }, { timestamps: true }) 
+    }, { timestamps: true })
+
+    userSchema.pre("save", async function () {
+        if (!this.isModified("password")) return;
+
+        this.password = await bcrypt.hash(this.password, 10);
+    });
+
+    userSchema.methods.isPasswordCorrect = async function (password) { 
+        return await bcrypt.compare(password, this.password);
+    };
 
 export const User = mongoose.model("User", userSchema);
