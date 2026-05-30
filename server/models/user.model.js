@@ -22,6 +22,10 @@ const userSchema = new Schema(
             type: String,
             default: null,
         },
+        passwordHistory: { // to store last 3 passwords for security purposes
+            type: [String],
+            default: []
+        },
         authProvider: { // to track whether the user signed up with google, email or both
             type: String,
             enum: ["google", "email", "both"],

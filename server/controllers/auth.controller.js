@@ -103,6 +103,13 @@ const registerUser = asyncHandler(async(req,res)=>{
         credits: 100 // Give 100 credits to every user when they sign up
     })
 
+    // Store password history for security purposes (e.g., to prevent reuse of last 3 passwords)
+    user.passwordHistory.push(user.password);
+    if (user.passwordHistory.length > 3) {
+        user.passwordHistory.shift(); // Keep only the last 3 passwords
+    }
+    await user.save();
+
     // remove password 
     const createdUser = await User.findById(user._id).select("-password")
 
@@ -265,6 +272,14 @@ const resetPassword = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid or expired token");
     }
 
+    // Check if new password is same as any of the last 3 passwords
+    for (let oldPasswordHash of user.passwordHistory) {
+        const isSameAsOld = await bcrypt.compare(newPassword, oldPasswordHash);
+        if (isSameAsOld) {
+            throw new ApiError(400, "New password cannot be the same as any of the last 3 passwords. Please choose a different password.");
+        }
+    }
+
     // Update password and clear reset token fields
     user.password = newPassword;
     user.resetPasswordToken = null;
@@ -276,6 +291,14 @@ const resetPassword = asyncHandler(async (req, res) => {
     }
 
     await user.save();
+
+    // Update password history
+    user.passwordHistory.push(user.password); // Add current password hash to history
+    if (user.passwordHistory.length > 3) {
+        user.passwordHistory.shift(); // Keep only the last 3 passwords
+    }
+    // save again to update password history without triggering validation errors since password is already hashed and valid
+    await user.save({ validateBeforeSave: false });
 
     return res
         .status(200)
