@@ -7,6 +7,15 @@ import { sendPasswordResetEmail } from "../services/email.service.js";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 
+
+// Strong password validation regex pattern
+const isStrongPassword = (password) => {
+    // 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+    const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+};
+
+
 //login with google
 const googleAuth = asyncHandler(async (req, res) => {
     const { name, email } = req.body;
@@ -68,8 +77,8 @@ const registerUser = asyncHandler(async(req,res)=>{
         throw new ApiError(400, "Password and confirm password do not match")
     }
 
-    if (password.length < 6) {
-        throw new ApiError(400, "Password must be at least 6 characters")
+    if (!isStrongPassword(password)) {
+        throw new ApiError(400, "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., @, $, !, %, *, ?, &).")
     }
 
     // Check if email already exists
@@ -132,6 +141,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
     if (!email?.trim().toLowerCase().endsWith("@gmail.com")) {
         throw new ApiError(400, "Invalid email domain. Please use a @gmail.com address.");
+    }
+
+    // Password length check before querying the database to prevent unnecessary load from invalid requests
+    if (password.length < 8) {
+        throw new ApiError(400, "Invalid credentials. Password must be at least 8 characters long.");
     }
 
     const user = await User.findOne({ 
@@ -227,8 +241,8 @@ const resetPassword = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email, token, new password and confirm new password are required");
     }
 
-    if(newPassword.length < 6) {
-        throw new ApiError(400, "New password must be at least 6 characters long");
+    if(!isStrongPassword(newPassword)) {
+        throw new ApiError(400, "New password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., @, $, !, %, *, ?, &).");
     }
 
     if (newPassword !== confirmNewPassword) {
