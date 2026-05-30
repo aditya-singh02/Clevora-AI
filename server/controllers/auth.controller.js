@@ -59,6 +59,10 @@ const registerUser = asyncHandler(async(req,res)=>{
     if (!name?.trim() || !email?.trim() || !password?.trim() || !confirmPassword?.trim()) {
         throw new ApiError(400, "Name, email, password and confirm password are required")
     }
+    // Only allow official Gmail addresses to ensure authenticity and reduce spam accounts
+    if (!email?.trim().toLowerCase().endsWith("@gmail.com")) {
+        throw new ApiError(400, "Only official @gmail.com email addresses are allowed on this platform.");
+    }
 
     if (password !== confirmPassword) {
         throw new ApiError(400, "Password and confirm password do not match")
@@ -126,6 +130,10 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email and password are required");
     }
 
+    if (!email?.trim().toLowerCase().endsWith("@gmail.com")) {
+        throw new ApiError(400, "Invalid email domain. Please use a @gmail.com address.");
+    }
+
     const user = await User.findOne({ 
         email: email.toLowerCase()
     });
@@ -163,10 +171,107 @@ const loginUser = asyncHandler(async (req, res) => {
     ));
 });
 
+//Forgot password
+//Flow: User submits email → If user exists, generate reset token, save hashed version and expiry to DB, send email with reset link containing raw token → User clicks link, submits new password along with token → Verify token and expiry, if valid update password
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email?.trim()) {
+        throw new ApiError(400, "Email is required");
+    }
+
+    if (!email?.trim().toLowerCase().endsWith("@gmail.com")) {
+        throw new ApiError(400, "Invalid email domain. Please use a @gmail.com address.");
+    }
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Generate random reset token
+    const resetToken = crypto.randomBytes(32).toString("hex")
+
+    // Hash before storing — never store raw tokens
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex")
+
+    // Save to user — expires in 15 minutes
+    user.resetPasswordToken = hashedToken
+    user.resetPasswordExpiry = Date.now() + 15 * 60 * 1000
+    await user.save()
+
+    // Reset URL sent to user — contains RAW token (not hashed)
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${user.email}`
+
+    // Send email
+    await sendPasswordResetEmail({
+        email: user.email,
+        resetUrl,
+        name: user.name
+    })
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Password reset link sent to your email"))
+})
+
+// Reset password
+const resetPassword = asyncHandler(async (req, res) => {
+
+    const { email, token, newPassword, confirmNewPassword } = req.body;
+
+    if (!email?.trim() || !token?.trim() || !newPassword?.trim() || !confirmNewPassword?.trim()) {
+        throw new ApiError(400, "Email, token, new password and confirm new password are required");
+    }
+
+    if(newPassword.length < 6) {
+        throw new ApiError(400, "New password must be at least 6 characters long");
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        throw new ApiError(400, "New password and confirm new password do not match");
+    }
+
+    //Hash the token from URL to compare with stored hash
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex")
+
+    const user = await User.findOne({
+        email: email.toLowerCase(),
+        resetPasswordToken: hashedToken,
+        resetPasswordExpiry: { $gt: Date.now() } // Check if token is not expired
+    })
+    
+    if (!user) {
+        throw new ApiError(400, "Invalid or expired token");
+    }
+
+    // Update password and clear reset token fields
+    user.password = newPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpiry = null;
+    
+    // If Google user sets password → they can now use both
+    if (user.authProvider === "google") {
+        user.authProvider = "both"
+    }
+
+    await user.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Password reset successfully. Please login."));
+
+})
 
 //logout user by clearing the cookie
 const logoutUser = asyncHandler(async (req, res) => {
-    
+
     const cookieOptions = {
         httpOnly: true,
         secure: true,
@@ -179,12 +284,18 @@ const logoutUser = asyncHandler(async (req, res) => {
         .clearCookie("token", cookieOptions)
         .json(
             new ApiResponse(
-                200, 
-                {}, 
+                200,
+                {},
                 "User logged out successfully"
             )
         );
 });
 
-
-export { googleAuth, registerUser,loginUser, logoutUser };
+export { 
+    googleAuth, 
+    registerUser,
+    loginUser, 
+    logoutUser, 
+    forgotPassword ,
+    resetPassword
+};
