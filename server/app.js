@@ -2,6 +2,7 @@ import express from 'express';
 import cors from "cors";
 import cookieParser from "cookie-parser"; 
 import dotenv from "dotenv";
+import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
 
 
 dotenv.config();
@@ -17,7 +18,9 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
-app.use(cookieParser());  
+app.use(cookieParser()); 
+
+app.use(globalLimiter) // Apply global rate limiter.
 
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";

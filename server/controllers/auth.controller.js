@@ -214,8 +214,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     // Save to user — expires in 15 minutes
     user.resetPasswordToken = hashedToken
-    user.resetPasswordExpiry = Date.now() + 15 * 60 * 1000
-    await user.save()
+    user.resetPasswordExpiry = Date.now() + 15 * 60 * 1000 // 15 minutes from now
+    await user.save({ validateBeforeSave: false }); 
 
     // Reset URL sent to user — contains RAW token (not hashed)
     const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${user.email}`
