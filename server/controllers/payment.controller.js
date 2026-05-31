@@ -25,11 +25,8 @@ const createOrder = asyncHandler(async (req, res) => {
         };
 
         // Calling the SDK via the imported instance wrapper
-        try{
-            const order = await RazorpayInstance.orders.create(options);
-        }catch(error) {
-            throw new ApiError(500, `Razorpay order creation failed: ${error.message}`);
-        }
+        
+        const order = await RazorpayInstance.orders.create(options);
 
         if(!order) {
             throw new ApiError(500, "Failed to create order");
