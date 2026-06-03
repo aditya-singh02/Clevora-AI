@@ -3,7 +3,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
 import genToken from "../config/token.js";
-import { sendPasswordResetEmail } from "../services/email.service.js";
+import { sendPasswordResetEmail, sendOTPEmail } from "../services/email.service.js";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 
@@ -87,6 +87,24 @@ const registerUser = asyncHandler(async(req,res)=>{
         })
     
     if (existingUser){
+
+        // If user exists but is not verified, resend OTP instead of throwing error
+        if (!existingUser.isVerified) {
+            const otp = Math.floor(100000 + Math.random() * 900000).toString()
+            const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex")
+
+            existingUser.otp = hashedOtp
+            existingUser.otpExpiry = Date.now() + 10 * 60 * 1000
+            await existingUser.save({ validateBeforeSave: false })
+
+            await sendOTPEmail({ email: existingUser.email, otp, name: existingUser.name })
+
+            return res.status(200).json(new ApiResponse(200, {
+                email: existingUser.email,
+                message: "OTP resent"
+            }, "OTP sent to your Gmail. Please verify."))
+        }
+
         // Email exists with Google auth → tell them to use Google or set password
         if (existingUser.authProvider === "google") {
             throw new ApiError(400, "This email is registered with Google. Please login with Google or use forgot password to set a password.")
@@ -100,7 +118,8 @@ const registerUser = asyncHandler(async(req,res)=>{
         email: email.toLowerCase(),
         password,
         authProvider: "email", // Set authProvider to "email" for users signing up via email/password
-        credits: 100 // Give 100 credits to every user when they sign up
+        credits: 100, // Give 100 credits to every user when they sign up
+        isVerified: false // User needs to verify email via OTP
     })
 
     // Store password history for security purposes (e.g., to prevent reuse of last 3 passwords)
@@ -108,33 +127,80 @@ const registerUser = asyncHandler(async(req,res)=>{
     if (user.passwordHistory.length > 3) {
         user.passwordHistory.shift(); // Keep only the last 3 passwords
     }
+
+    // 6 digit OTP generate 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+
+    // Hash the OTP before saving to DB for security
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex")
+
+    user.otp = hashedOtp                              
+    user.otpExpiry = Date.now() + 10 * 60 * 1000  // OTP expires in 10 minutes
+
     await user.save();
 
-    // remove password 
-    const createdUser = await User.findById(user._id).select("-password")
+    await sendOTPEmail({ email: user.email, otp, name: user.name })
 
-    if (!createdUser) {
-        throw new ApiError(500, "User creation failed")
+    return res
+        .status(200)
+        .json(new ApiResponse(200,
+            { email: user.email },
+            "OTP sent to your Gmail. Please verify to complete registration."
+        ))
+})
+
+// Note: OTP verification route is not included here but would be a separate endpoint where user submits email and OTP, we verify the hashed OTP and expiry, then set isVerified to true if valid.
+// OTP verification route - user submits email and OTP → we hash the OTP from request and compare with stored hash + check expiry → if valid, set isVerified to true and clear OTP fields, then log the user in by generating token and setting cookie.
+const verifyOtp = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email?.trim() || !otp?.trim()) {
+        throw new ApiError(400, "Email and OTP are required");
     }
+    // Hash the OTP from request to compare with stored hash
+    const hashedOtp = crypto.createHash("sha256").update(otp.trim()).digest("hex")
 
-    const token = await genToken(createdUser._id)
+    const user = await User.findOne({
+        email: email.toLowerCase(),
+        otp: hashedOtp,
+        otpExpiry: { $gt: Date.now() }   // expired nahi hona chahiye
+    })
+
+    if (!user) {
+        throw new ApiError(404, "Invalid or expired OTP. Please try again.");
+    }
     
+    if (user.isVerified) {
+        throw new ApiError(400, "User is already verified. Please login.");
+    }   
+
+    // OTP is valid, verify user
+    user.isVerified = true
+    user.otp = null
+    user.otpExpiry = null
+    await user.save({ validateBeforeSave: false })
+
+    const token = await genToken(user._id)
+
     //cookies
     const cookieOptions = {
-        httpOnly: true, 
-        secure: true,  
+        httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expires in 7 days 
     };
 
+    // Return user data without sensitive fields like password and OTP
+    const userData = await User.findById(user._id).select("-password -otp -otpExpiry -passwordHistory")
+
     return res
-    .status(201)
-    .cookie("token", token, cookieOptions) 
-    .json(new ApiResponse(
-        201, 
-        createdUser, 
-        "User registered successfully"
-    ));
+        .status(201)
+        .cookie("token", token, cookieOptions)
+        .json(new ApiResponse(
+            201,
+            userData,
+            "Account verified! Welcome to Clevora."
+        ));
 })
 
 
@@ -334,5 +400,6 @@ export {
     loginUser, 
     logoutUser, 
     forgotPassword ,
-    resetPassword
+    resetPassword,
+    verifyOtp
 };

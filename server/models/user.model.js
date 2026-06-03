@@ -44,7 +44,20 @@ const userSchema = new Schema(
         resetPasswordExpiry: {
             type: Date,
             default: null
-        }
+        },
+        // Email verification fields
+        isVerified: {
+            type: Boolean,
+            default: false        // register pe false, OTP verify pe true
+        },
+        otp: {
+            type: String,
+            default: null         // hashed OTP stored here
+        },
+        otpExpiry: {
+            type: Date,
+            default: null         // 10 minutes expiry
+        },
     }, { timestamps: true })
 
     userSchema.pre("save", async function () {
