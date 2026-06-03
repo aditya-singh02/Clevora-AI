@@ -1,40 +1,97 @@
-import React, { useEffect } from 'react'
-import {Routes, Route} from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from './pages/Home.jsx'
 import Auth from './pages/Auth.jsx'
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import { setUserData } from './redux/userSlice.js';
 
 
 export const ServerURL = import.meta.env.VITE_SERVER_URL || "http://localhost:8000";
 
-function App() {
-
-  const dispatch = useDispatch(); // useDispatch is a hook provided by react-redux that allows you to dispatch actions to the Redux store. It returns a reference to the dispatch function from the Redux store, which you can use to send actions that will update the state in the store.
-
-  useEffect(() => { 
-    const getUser = async () => {
-      try{
-        const response = await axios.get(`${ServerURL}/api/v1/user/current-user`, 
-          { withCredentials: true });
-        dispatch(setUserData(response.data)); // Dispatch the setUserData action with the fetched user data to update the Redux store.
-      }catch(error){
-        console.error("Error fetching current user details:", error);
-        dispatch(setUserData(null)); // If there's an error fetching the user data, dispatch setUserData with null to clear any existing user data in the Redux store.
+export default function App() {
+  const dispatch = useDispatch()
+ 
+  // Redux se userData lo — null means logged out, object means logged in
+  const { userData } = useSelector(state => state.user)
+ 
+  // Jab tak session check ho raha hai — spinner dikhao
+  // Warna pehle Home dikhega phir redirect hoga (flickering)
+  const [checking, setChecking] = useState(true)
+ 
+  useEffect(() => {
+    // ── SESSION RESTORE ────────────────────────────────────────
+    // Har page reload pe yeh run hota hai
+    // Backend ko cookie bhejta hai → verifyJWT middleware check karta hai
+    // Cookie valid → user data return → Redux mein store
+    // Cookie nahi/expire → 401 error → null store → Home dikhao
+    const restoreSession = async () => {
+      try {
+        const response = await axios.get(
+          `${SERVER}/api/v1/user/current-user`,
+          { withCredentials: true } // ← cookie bhejne ke liye zaroori
+        )
+        // response.data = ApiResponse { statusCode, data, message, success }
+        // response.data.data = actual user { _id, name, email, credits, ... }
+        dispatch(setUserData(response.data.data))
+      } catch {
+        // 401 aaya → no valid cookie → user logged out
+        dispatch(setUserData(null))
+      } finally {
+        setChecking(false)
       }
-    } 
-    getUser();  
+    }
+    restoreSession()
   }, [dispatch])
-
+ 
+  // Loading spinner — session check ho raha hai
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"/>
+      </div>
+    )
+  }
+ 
   return (
-   <Routes>
-     <Route path='/' element={<Home />} /> // when the user visits the root path '/', the Home component will be rendered. This means that when the user navigates to the base URL of the application, they will see the content defined in the Home component.
-     <Route path='/auth' element={<Auth />} /> // when the user visits the '/auth' path, the Auth component will be rendered.
-   
+    <Routes>
+      {/*
+        "/" → agar logged in hai → /dashboard
+               agar nahi → Home page (landing + auth modal)
+      */}
+      <Route
+        path="/"
+        element={ <Home /> }
+      />
 
-   </Routes>
+    <Route path="/auth" element={!userData ? <Auth /> : <Navigate to="/" replace />} />
+
+      {/*
+        "/reset-password" → email link se aaya → Home load hoga
+        Home.jsx mein useEffect URL check karta hai aur modal open karta hai
+      */}
+      <Route path="/reset-password" element={<Home />} />
+ 
+      {/*
+        "/dashboard" → protected → sirf logged in user access kar sakta hai
+        Dashboard abhi nahi bana — baad mein banayenge
+      */}
+      <Route
+        path="/dashboard"
+        element={
+          userData
+            ? (
+              <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+                <p className="text-white text-xl">
+                  Welcome {userData.name}! Dashboard coming soon 🚀
+                </p>
+              </div>
+            )
+            : <Navigate to="/" replace />
+        }
+      />
+    </Routes>
   )
 }
-
-export default App
+ 
+// export default App
