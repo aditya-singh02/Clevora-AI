@@ -294,17 +294,14 @@ function Tabs({ active, onChange }) {
           key={v}
           type="button"
           onClick={() => onChange(v)}
-          className={`flex-1 py-2.5 rounded-[9px] text-[13px] font-medium transition-all duration-200 relative ${
-            active === v ? "text-white" : "text-slate-500 hover:text-slate-300"
-          }`}
+          className={`flex-1 py-2.5 rounded-[9px] text-[13px] font-medium
+            transition-all duration-300
+            ${
+              active === v
+                ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg"
+                : "text-slate-500 hover:text-slate-300 hover:bg-white/[0.03]"
+            }`}
         >
-          {active === v && (
-            <motion.div
-              layoutId="tab-bg"
-              className="absolute inset-0 rounded-[9px] bg-gradient-to-r from-indigo-600 to-violet-600"
-              style={{ zIndex: -1 }}
-            />
-          )}
           {v === "login" ? "Sign In" : "Create Account"}
         </button>
       ))}
