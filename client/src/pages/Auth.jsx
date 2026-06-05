@@ -292,7 +292,8 @@ function Tabs({ active, onChange }) {
       {["login", "register"].map((v) => (
         <button
           key={v}
-          type="button"
+          type="butto
+          n"
           onClick={() => onChange(v)}
           className={`flex-1 py-2.5 rounded-[9px] text-[13px] font-medium
             transition-all duration-300
