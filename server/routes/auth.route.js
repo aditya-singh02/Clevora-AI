@@ -19,7 +19,7 @@ authRouter.route("/register").post(registerUser);
 authRouter.route("/verify-otp").post(verifyOtp);
 
 // Strict Security Guards(Only 5 attempts allowed per 15 mins)
-authRouter.route("/login").post(loginUser); //authRateLimiter,
+authRouter.route("/login").post(authRateLimiter, loginUser); 
 authRouter.route("/forgot-password").post(authRateLimiter, forgotPassword);
 
 //Token protected
