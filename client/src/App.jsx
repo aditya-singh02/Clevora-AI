@@ -1,97 +1,92 @@
+// client/src/App.jsx
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Home from './pages/Home.jsx'
-import Auth from './pages/Auth.jsx'
-import axios from 'axios';
+import Home from "./pages/Home.jsx";
+import Auth from "./pages/Auth.jsx";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserData } from './redux/userSlice.js';
+import { setUserData } from "./redux/userSlice.js";
+import Dashboard from "./pages/Dashboard.jsx";
 
-
-export const ServerURL = import.meta.env.VITE_SERVER_URL || "http://localhost:8000";
+export const ServerURL =
+  import.meta.env.VITE_SERVER_URL || "http://localhost:8000";
 
 export default function App() {
-  const dispatch = useDispatch()
- 
-  // Redux se userData lo — null means logged out, object means logged in
-  const { userData } = useSelector(state => state.user)
- 
-  // Jab tak session check ho raha hai — spinner dikhao
-  // Warna pehle Home dikhega phir redirect hoga (flickering)
-  const [checking, setChecking] = useState(true)
- 
+  const dispatch = useDispatch();
+  const { userData } = useSelector((state) => state.user);
+
+  // redux-persist ka rehydration track karo
+  // state.user._persist.rehydrated === true hone ke baad hi routes render karo
+  const rehydrated = useSelector(
+    (state) => state.user?._persist?.rehydrated ?? false,
+  );
+  const [checking, setChecking] = useState(true);
+
+  console.log("rehydrated:", rehydrated);
+  console.log("userData:", userData);
+  console.log("checking:", checking);
+
   useEffect(() => {
-    // ── SESSION RESTORE ────────────────────────────────────────
-    // Har page reload pe yeh run hota hai
-    // Backend ko cookie bhejta hai → verifyJWT middleware check karta hai
-    // Cookie valid → user data return → Redux mein store
-    // Cookie nahi/expire → 401 error → null store → Home dikhao
+    //  Rehydration complete hone ka wait karo pehle
+    if (!rehydrated) return;
+
     const restoreSession = async () => {
       try {
         const response = await axios.get(
-          `${SERVER}/api/v1/user/current-user`,
-          { withCredentials: true } // ← cookie bhejne ke liye zaroori
-        )
-        // response.data = ApiResponse { statusCode, data, message, success }
-        // response.data.data = actual user { _id, name, email, credits, ... }
-        dispatch(setUserData(response.data.data))
-      } catch {
-        // 401 aaya → no valid cookie → user logged out
-        dispatch(setUserData(null))
+          `${ServerURL}/api/v1/user/current-user`,
+          { withCredentials: true },
+        );
+
+        if (response.data?.data?.name) {
+          dispatch(setUserData(response.data.data));
+        }
+        //  catch mein null mat set karo — persist ka data rahega
+      } catch (error) {
+        // intentionally empty
       } finally {
-        setChecking(false)
+        setChecking(false);
       }
-    }
-    restoreSession()
-  }, [dispatch])
- 
-  // Loading spinner — session check ho raha hai
-  if (checking) {
+    };
+
+    restoreSession();
+  }, [rehydrated, dispatch]); // ← rehydrated dependency add ki
+
+  //  Dono conditions ka wait: rehydration + session check
+  if (!rehydrated || checking) {
     return (
-      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"/>
+      <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center gap-3">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 animate-pulse">
+          Syncing Core Telemetry...
+        </p>
       </div>
-    )
+    );
   }
- 
+
+  const isUserAuthenticated = userData && userData.name;
+
   return (
     <Routes>
-      {/*
-        "/" → agar logged in hai → /dashboard
-               agar nahi → Home page (landing + auth modal)
-      */}
       <Route
         path="/"
-        element={ <Home /> }
+        element={
+          isUserAuthenticated ? <Navigate to="/dashboard" replace /> : <Home />
+        }
       />
-
-    <Route path="/auth" element={!userData ? <Auth /> : <Navigate to="/" replace />} />
-
-      {/*
-        "/reset-password" → email link se aaya → Home load hoga
-        Home.jsx mein useEffect URL check karta hai aur modal open karta hai
-      */}
-      <Route path="/reset-password" element={<Home />} />
- 
-      {/*
-        "/dashboard" → protected → sirf logged in user access kar sakta hai
-        Dashboard abhi nahi bana — baad mein banayenge
-      */}
+      <Route
+        path="/auth"
+        element={
+          !isUserAuthenticated ? <Auth /> : <Navigate to="/dashboard" replace />
+        }
+      />
       <Route
         path="/dashboard"
         element={
-          userData
-            ? (
-              <div className="min-h-screen bg-[#030712] flex items-center justify-center">
-                <p className="text-white text-xl">
-                  Welcome {userData.name}! Dashboard coming soon 🚀
-                </p>
-              </div>
-            )
-            : <Navigate to="/" replace />
+          isUserAuthenticated ? <Dashboard /> : <Navigate to="/" replace />
         }
       />
+      <Route path="/reset-password" element={<Home />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
+  );
 }
- 
-// export default App

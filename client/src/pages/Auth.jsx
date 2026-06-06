@@ -26,11 +26,11 @@ import {
 import { RiLoader4Line } from "react-icons/ri";
 
 // ─── Backend URL from .env ─────────────────────────────────────────────────────
-// VITE_SERVER_URL=http://localhost:8000 in client/.env
+
 const SERVER = import.meta.env.VITE_SERVER_URL;
 
 // ─── Password Rules (must match backend exactly) ──────────────────────────────
-// Backend regex: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+// Backend regex
 const PWD_RULES = [
   { id: "len", label: "At least 8 characters", test: (p) => p.length >= 8 },
   {
@@ -53,7 +53,7 @@ const PWD_RULES = [
 
 const isStrongPassword = (p) => PWD_RULES.every((r) => r.test(p));
 
-// ─── Framer Motion Variants ────────────────────────────────────────────────────
+// ─── Framer Motion Variants ───────
 const overlayVar = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
@@ -451,7 +451,7 @@ export default function Auth({ isOpen, onClose, defaultView = "login" }) {
 
       // Step 5: Close modal +   go to dashboard
       onClose();
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       // err.response.data.message = ApiError message from backend
       setError(
@@ -489,7 +489,7 @@ export default function Auth({ isOpen, onClose, defaultView = "login" }) {
 
       dispatch(setUserData(data.data));
       onClose();
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       // Backend error messages (from auth.controller.js):
       // "User not found. Please register first."
