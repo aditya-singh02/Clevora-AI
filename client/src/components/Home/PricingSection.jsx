@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { BsShieldCheck } from "react-icons/bs";
 import { SiRazorpay } from "react-icons/si";
 import { useTheme } from "../../context/ThemeContext.jsx";
-import { plans, paymentMethods } from "../../data/pricing.js";
-import PricingCard from "../ui/PricingCard.jsx";
+import { paymentMethods, plans } from "../../data/pricing.js";
+import PricingCard from "../Payment/PricingCard.jsx";
 import FadeIn from "../ui/FadeIn.jsx";
 
 export default function PricingSection({ onSignup }) {

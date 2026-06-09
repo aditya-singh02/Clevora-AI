@@ -17,6 +17,10 @@ const paymentSchema = new mongoose.Schema(
             enum : ['created', 'paid', 'failed'],
             default : 'created'
         },
+        failReason: { 
+            type: String, 
+            default: null 
+        },
 }, { timestamps: true });
 
 const Payment = mongoose.model("Payment", paymentSchema);

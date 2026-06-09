@@ -130,4 +130,24 @@ const verifyPayment = asyncHandler(async (req, res) => {
     );
 })
 
-export { createOrder, verifyPayment };
+// C. Handle failed payment scenarios and update payment status accordingly
+// This function is designed to handle scenarios where a payment has failed. It takes the Razorpay order ID and an optional reason for failure from the request body, finds the corresponding payment record in the database, and updates its status to "failed". This allows us to keep track of failed payment attempts and their reasons in our system. If the payment record is not found, it throws an error indicating that the record was not found.
+const handleFailedPayment = asyncHandler(async (req, res) => {
+    const { razorpayOrderId, reason } = req.body;
+
+    if (!razorpayOrderId) throw new ApiError(400, "Order ID required");
+
+    const paymentRecord = await Payment.findOne({ razorpayOrderId });
+
+    if (!paymentRecord) throw new ApiError(404, "Payment record not found");
+
+    if (paymentRecord.status === "created") {
+        paymentRecord.status = "failed";
+        paymentRecord.failReason = reason || "unknown";
+        await paymentRecord.save();
+    }
+
+    return res.status(200).json(new ApiResponse(200, {}, "Failure recorded"));
+});
+
+export { createOrder, verifyPayment, handleFailedPayment };
