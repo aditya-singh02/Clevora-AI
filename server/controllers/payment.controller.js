@@ -150,4 +150,20 @@ const handleFailedPayment = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "Failure recorded"));
 });
 
-export { createOrder, verifyPayment, handleFailedPayment };
+const getPaymentHistory = asyncHandler(async (req, res) => {
+    const payments = await Payment.find({
+        userId: req.user._id
+    })
+        .sort({ createdAt: -1 });
+
+    // 3. Raw array ko directly respond karenge, formatting frontend handle karega
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            payments,
+            "Payment history fetched successfully"
+        )
+    );
+});
+
+export { createOrder, verifyPayment, handleFailedPayment, getPaymentHistory };
