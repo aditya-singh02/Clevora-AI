@@ -8,9 +8,13 @@ const userSlice = createSlice({
     reducers: { //ye reducers object hai jisme hum apne state ko update karne ke liye functions define karte hain. In functions ko hum actions ke through call karte hain, aur ye functions state ko update karte hain based on the payload they receive.
         setUserData: (state, action) => {
             state.userData = action.payload; // is function ka naam setUserData hai, aur ye state ke userData property ko update karta hai with the value provided in the action's payload. Jab hum is action ko dispatch karenge, to hum payload me user data pass karenge, aur ye reducer us data ko state me store kar dega.
-        }} 
+        }, 
+        clearUserData: (state) => {
+            state.userData = null; // State wapas initial status (null) par chali jayegi
+        }
+    } 
 })
 
-export const { setUserData } = userSlice.actions; 
+export const { setUserData, clearUserData } = userSlice.actions; 
 
 export default userSlice.reducer; 
