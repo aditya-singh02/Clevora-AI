@@ -15,7 +15,9 @@ import { NeuralBg } from "../components/ui/NeuralBg.jsx";
 import { useCursorGlow } from "../hooks/useCursorGlow.js";
 
 export default function Dashboard() {
-  const { userData } = useSelector((state) => state.user);
+  const userState = useSelector((state) => state.user);
+  const userData = userState?.userData || userState?.user || userState;
+
   const { dark } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pos = useCursorGlow();

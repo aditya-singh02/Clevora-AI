@@ -19,9 +19,9 @@ import {
 
 const NAV_ITEMS = [
   { label: "Dashboard", path: "/dashboard", icon: TbHome },
-  { label: "New Interview", path: "/interview/new", icon: TbMicrophone2 },
+  { label: "New Interview", path: "/interview-setup", icon: TbMicrophone2 },
   { label: "History", path: "/history", icon: TbHistory },
-  { label: "Credits", path: "/credits", icon: TbCoin },
+  { label: "Credits", path: "/pricing", icon: TbCoin },
   { label: "Settings", path: "/settings", icon: TbSettings },
 ];
 

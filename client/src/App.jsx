@@ -8,6 +8,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserData } from "./redux/userSlice.js";
 import Dashboard from "./pages/Dashboard.jsx";
 
+import InterviewSetup from "./pages/InterviewSetup.jsx";
+import InterviewSession from "./pages/InterviewSession.jsx";
+import ReportPage from "./pages/ReportPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentFailed from "./pages/PaymentFailed.jsx";
+import SettingsPage from "./pages/SettingPage.jsx";
+import HistoryPage from "./pages/History.jsx";
+
+
 export const ServerURL =
   import.meta.env.VITE_SERVER_URL || "http://localhost:8000";
 
@@ -21,10 +31,6 @@ export default function App() {
     (state) => state.user?._persist?.rehydrated ?? false,
   );
   const [checking, setChecking] = useState(true);
-
-  console.log("rehydrated:", rehydrated);
-  console.log("userData:", userData);
-  console.log("checking:", checking);
 
   useEffect(() => {
     //  Rehydration complete hone ka wait karo pehle
@@ -85,8 +91,20 @@ export default function App() {
           isUserAuthenticated ? <Dashboard /> : <Navigate to="/" replace />
         }
       />
+      <Route path="/interview-setup" element={<InterviewSetup />} />
+      <Route
+        path="/interview/session/:sessionId"
+        element={<InterviewSession />}
+      />
+      <Route path="/interview/report/:id" element={<ReportPage />} />
       <Route path="/reset-password" element={<Home />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      // Payment routes
+      <Route path="/pricing" element={<PaymentPage />} />
+      <Route path="/payment/success" element={<PaymentSuccess />} />
+      <Route path="/payment/failure" element={<PaymentFailed />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/history" element={<HistoryPage />} />
     </Routes>
   );
 }

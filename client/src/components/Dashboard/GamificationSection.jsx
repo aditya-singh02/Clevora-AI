@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useGetAllInterviews } from "../../hooks/useGetAllInterviews.js"; // 🚀 Hook Imported
 import {
   TbTrophy,
   TbFlame,
@@ -10,12 +11,16 @@ import {
 } from "react-icons/tb";
 import GlassCard from "../ui/GlassCard.jsx";
 
-export default function GamificationSection({ user }) {
-  // 🚀 PURE INTERVIEW-BASED TRACKING ENGINE
-  // Wallet recharges or credits top-ups won't glitch the leveling system anymore.
-  const interviewsCompleted = user?.interviews?.length || 0;
+export default function GamificationSection() {
+  // 🚀 Fetch data from your custom hook
+  const { interviews, loading } = useGetAllInterviews();
 
-  // Variable milestones configuration based on user performance matrix
+  // Count only finished interviews safely
+  const interviewsCompleted = interviews.filter(
+    (iv) => iv && iv.status?.toLowerCase() === "completed",
+  ).length;
+
+  // Simple Level calculation logic
   let calculatedLevel = 1;
   let currentLevelStart = 0;
   let nextLevelTarget = 3;
@@ -23,41 +28,39 @@ export default function GamificationSection({ user }) {
   if (interviewsCompleted >= 35) {
     calculatedLevel = 6;
     currentLevelStart = 35;
-    nextLevelTarget = 999; // Infinite ceiling buffer cap
+    nextLevelTarget = 999;
   } else if (interviewsCompleted >= 25) {
     calculatedLevel = 5;
     currentLevelStart = 25;
-    nextLevelTarget = 35; // Level 5 needs 10 interviews
+    nextLevelTarget = 35;
   } else if (interviewsCompleted >= 15) {
     calculatedLevel = 4;
     currentLevelStart = 15;
-    nextLevelTarget = 25; // Level 4 needs 10 interviews
+    nextLevelTarget = 25;
   } else if (interviewsCompleted >= 8) {
     calculatedLevel = 3;
     currentLevelStart = 8;
-    nextLevelTarget = 15; // Level 3 needs 7 interviews
+    nextLevelTarget = 15;
   } else if (interviewsCompleted >= 3) {
     calculatedLevel = 2;
     currentLevelStart = 3;
-    nextLevelTarget = 8; // Level 2 needs 5 interviews
+    nextLevelTarget = 8;
   } else {
     calculatedLevel = 1;
     currentLevelStart = 0;
-    nextLevelTarget = 3; // Level 1 needs 3 interviews
+    nextLevelTarget = 3;
   }
 
-  // 🧮 VARIABLE XP PERCENTAGE CONTROLLER:
-  // Dynamically shifts bounds depending on current tier requirements
+  // Calculate progress bar percentage
   const totalInterviewsInCurrentLevel = nextLevelTarget - currentLevelStart;
   const completedInCurrentLevel = interviewsCompleted - currentLevelStart;
 
-  // Custom non-clamped percentage slider engine
   const xpPercentage =
     calculatedLevel === 6
       ? 100
       : (completedInCurrentLevel / totalInterviewsInCurrentLevel) * 100;
 
-  // Master Cyberpunk Glow Theme Configurator
+  // Level ranks setup
   const getRankConfig = (lvl) => {
     if (lvl === 1)
       return {
@@ -98,13 +101,13 @@ export default function GamificationSection({ user }) {
 
   const currentRank = getRankConfig(calculatedLevel);
 
-  // 🏆 BALANCED BADGE MATRIX: Mapped strictly across hard level steps
+  // User Badges setup
   const badges = [
     {
       id: 1,
       name: "First Shot",
       icon: TbAward,
-      desc: "Unlocked Syntax Cadet (Lvl 2)",
+      desc: "Reached Level 2",
       unlocked: calculatedLevel >= 2,
       color:
         calculatedLevel >= 2
@@ -115,7 +118,7 @@ export default function GamificationSection({ user }) {
       id: 2,
       name: "Matrix Breaker",
       icon: TbCrown,
-      desc: "Reached Byte Master (Lvl 4)",
+      desc: "Reached Level 4",
       unlocked: calculatedLevel >= 4,
       color:
         calculatedLevel >= 4
@@ -126,7 +129,7 @@ export default function GamificationSection({ user }) {
       id: 3,
       name: "Quantum Aura",
       icon: TbCpu,
-      desc: "Achieved God Tier (Lvl 6)",
+      desc: "Reached Max Level 6",
       unlocked: calculatedLevel >= 6,
       color:
         calculatedLevel >= 6
@@ -135,14 +138,19 @@ export default function GamificationSection({ user }) {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="w-full h-32 rounded-2xl animate-pulse bg-white/[0.01] border border-white/[0.04]" />
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full min-w-0">
-      {/* 1. STREAK & PROGRESS ENGINE CARD */}
+      {/* 1. PROGRESS CARD */}
       <GlassCard
         hover={true}
-        className="p-6 flex flex-col justify-between h-full relative overflow-hidden group lg:col-span-1"
+        className="p-6 flex flex-col justify-between h-full relative overflow-hidden group lg:col-span-1 border border-white/[0.04]"
       >
-        {/* Dynamic back-layer blur reflection matching rank tier aura */}
         <div
           className={`absolute top-0 right-0 w-32 h-32 ${currentRank.glow} rounded-full blur-2xl pointer-events-none transition-all duration-500 group-hover:scale-125`}
         />
@@ -160,28 +168,28 @@ export default function GamificationSection({ user }) {
               </div>
               <div>
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Operational Rank
+                  Your Rank
                 </h3>
-                <p className="text-lg font-black text-white mt-0.5 tracking-tight transition-all duration-300">
+                <p className="text-lg font-black text-white mt-0.5 tracking-tight">
                   {currentRank.name}
                 </p>
               </div>
             </div>
             <span
-              className={`text-[10px] font-bold px-2.5 py-1 border rounded-lg uppercase tracking-wider transition-colors duration-300 ${currentRank.color}`}
+              className={`text-[10px] font-bold px-2.5 py-1 border rounded-lg uppercase tracking-wider ${currentRank.color}`}
             >
               Level {calculatedLevel}
             </span>
           </div>
 
-          {/* XP Dynamic Horizontal Bar */}
+          {/* Progress Bar */}
           <div className="space-y-1.5 pt-2">
             <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
-              <span className="text-slate-500">Next Rank Milestone</span>
+              <span className="text-slate-500">Next Level Goal</span>
               <span className="text-indigo-400">
                 {calculatedLevel === 6
-                  ? "MAXED"
-                  : `${interviewsCompleted} / ${nextLevelTarget} Mocks`}
+                  ? "MAX LEVEL"
+                  : `${interviewsCompleted} / ${nextLevelTarget} Interviews`}
               </span>
             </div>
             <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.03]">
@@ -195,17 +203,18 @@ export default function GamificationSection({ user }) {
           </div>
         </div>
 
+        {/* 🌟 Super Easy English Description */}
         <p className="text-slate-500 text-[11px] mt-4 leading-relaxed">
           {calculatedLevel === 6
-            ? "Absolute telemetry capacity reached. You are officially operating inside the premium Quantum Overlord bracket."
-            : `Currently executing as a ${currentRank.name}. Complete ${nextLevelTarget - interviewsCompleted} more mock interview sessions to trigger the Level ${calculatedLevel + 1} checkpoint upgrade.`}
+            ? "Great job! You have reached the maximum rank. You are now a Quantum Overlord."
+            : `You are currently at rank ${currentRank.name}. Complete ${nextLevelTarget - interviewsCompleted} more interviews to unlock Level ${calculatedLevel + 1}.`}
         </p>
       </GlassCard>
 
-      {/* 2. ACHIEVEMENTS & DYNAMIC BADGES RACK */}
+      {/* 2. BADGES CARD */}
       <GlassCard
         hover={true}
-        className="p-6 lg:col-span-2 flex flex-col justify-between h-full relative overflow-hidden group"
+        className="p-6 lg:col-span-2 flex flex-col justify-between h-full relative overflow-hidden group border border-white/[0.04]"
       >
         <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -217,10 +226,10 @@ export default function GamificationSection({ user }) {
               </div>
               <div>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  System Achievement Badges
+                  Your Badges
                 </h3>
                 <p className="text-sm font-extrabold text-white mt-0.5">
-                  Automated Profile Checkpoints
+                  Unlocked Achievements
                 </p>
               </div>
             </div>
@@ -233,7 +242,7 @@ export default function GamificationSection({ user }) {
             </button>
           </div>
 
-          {/* Badges Grid Loop Mapping */}
+          {/* Badges Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             {badges.map((badge) => {
               const BadgeIcon = badge.icon;

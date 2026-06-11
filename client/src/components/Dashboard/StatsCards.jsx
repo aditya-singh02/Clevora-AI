@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "../../context/ThemeContext";
 import GlassCard from "../ui/GlassCard.jsx";
+import { useGetAllInterviews } from "../../hooks/useGetAllInterviews.js"; // 🚀 Hook Imported
 import {
   TbCoin,
   TbMicrophone2,
@@ -16,38 +17,73 @@ import {
 export default function StatsCards({ user }) {
   const { dark } = useTheme();
 
-  // Data mapping from your schema models
-  const availableCredits = user?.credits ?? 100;
-  const rawInterviews = user?.interviews || []; // assuming interviews is an array of interview session objects with properties like finalScore and status
-  const totalInterviews = rawInterviews.length; // length of the interviews array gives us the total number of interview sessions run by the user
-  const completedInterviews = rawInterviews.filter(
+  // 🚀 SINGLE LINE DATA FETCH FROM YOUR HOOK
+  const { interviews, loading } = useGetAllInterviews();
+
+  // Base Data Mapping
+  const availableCredits = user?.credits ?? 0;
+  const totalInterviews = interviews.length;
+  const completedInterviews = interviews.filter(
     (i) => i.status === "Completed",
   );
 
+  // Score Calculations
   const avgScore =
     totalInterviews > 0
-      ? Math.round(
-          rawInterviews.reduce((acc, curr) => acc + (curr.finalScore ?? 0), 0) /
-            totalInterviews,
-        )
-      : 0;
+      ? (
+          interviews.reduce((acc, curr) => acc + (curr.finalScore ?? 0), 0) /
+          totalInterviews
+        ).toFixed(1)
+      : "0";
 
   const bestScore =
     totalInterviews > 0
-      ? Math.max(...rawInterviews.map((i) => i.finalScore ?? 0))
+      ? Math.max(...interviews.map((i) => i.finalScore ?? 0))
       : 0;
 
-  const currentStreak =
-    user?.analytics?.streakDays || user?.analytics?.currentStreak || 0;
-  const calculatedHours =
-    totalInterviews > 0 ? (totalInterviews * 0.25).toFixed(1) : "0";
+  // Real-time Duration Calculation from DB timestamps
+  const totalMinutes = interviews.reduce((total, session) => {
+    if (
+      session.status === "Completed" &&
+      session.createdAt &&
+      session.updatedAt
+    ) {
+      const startTime = new Date(session.createdAt);
+      const endTime = new Date(session.updatedAt);
+      const differenceInMs = endTime - startTime;
+      const sessionMinutes = Math.max(
+        1,
+        Math.round(differenceInMs / (1000 * 60)),
+      );
+      return total + sessionMinutes;
+    }
+    return total;
+  }, 0);
+
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+  const timeDisplay = `${hours}h ${mins}m`;
+
+  // Career Track: Finding most practiced job profile
+  const rolesList = interviews.map((i) => i.role).filter(Boolean);
+  const favoriteRole =
+    rolesList.length > 0
+      ? rolesList.reduce(
+          (acc, curr, _, arr) =>
+            arr.filter((v) => v === curr).length >
+            arr.filter((v) => v === acc).length
+              ? curr
+              : acc,
+          rolesList[0],
+        )
+      : "No sessions yet";
 
   const metricsData = [
     {
       id: "credits_pool",
-      label: "Engine Fuel",
-      value: `${availableCredits} Tokens`,
-      subtext: "Ready for instant simulation",
+      label: "Available Balance",
+      value: `${availableCredits} Credits`,
+      subtext: "Ready for your next mock test",
       isPositive: true,
       icon: TbCoin,
       iconColor: "text-amber-400",
@@ -55,9 +91,9 @@ export default function StatsCards({ user }) {
     },
     {
       id: "total_interviews",
-      label: "Total Run",
+      label: "Total Interviews",
       value: `${totalInterviews} Sessions`,
-      subtext: `${completedInterviews.length} status completed`,
+      subtext: `${completedInterviews.length} successfully finished`,
       isPositive: totalInterviews > 0,
       icon: TbMicrophone2,
       iconColor: "text-indigo-400",
@@ -65,42 +101,42 @@ export default function StatsCards({ user }) {
     },
     {
       id: "avg_score",
-      label: "Avg Accuracy",
-      value: `${avgScore}% Matrix`,
-      subtext: "Live evaluation checkpoint",
-      isPositive: avgScore > 60,
+      label: "Average Score",
+      value: `${avgScore}/10 Rating`,
+      subtext: "Your overall performance level",
+      isPositive: parseFloat(avgScore) >= 6,
       icon: TbTrendingUp,
       iconColor: "text-emerald-400",
       iconBg: "bg-emerald-500/10 border-emerald-500/20",
     },
     {
       id: "best_score",
-      label: "Best Checkpoint",
-      value: `${bestScore}% Score`,
-      subtext: "Peak final report target",
+      label: "Highest Score",
+      value: `${bestScore}/10 Best`,
+      subtext: "Your personal record score",
       isPositive: bestScore > 0,
       icon: TbAward,
       iconColor: "text-cyan-400",
       iconBg: "bg-cyan-500/10 border-cyan-500/20",
     },
     {
-      id: "streak_engine",
-      label: "Consistency Engine",
-      value: `${currentStreak} Days`,
+      id: "primary_focus",
+      label: "Primary Focus",
+      value: favoriteRole,
       subtext:
-        currentStreak > 0
-          ? "Active multiplier pacing"
-          : "Requires session start",
-      isPositive: currentStreak > 0,
+        totalInterviews > 0
+          ? "Your most practiced job profile"
+          : "Start a session to track focus",
+      isPositive: totalInterviews > 0,
       icon: TbFlame,
       iconColor: "text-orange-400",
       iconBg: "bg-orange-500/10 border-orange-500/20",
     },
     {
       id: "time_telemetry",
-      label: "Telemetry Duration",
-      value: `${calculatedHours}h Run`,
-      subtext: "Estimated session airtime",
+      label: "Total Time Spent",
+      value: timeDisplay,
+      subtext: "Actual real-time practice duration",
       isPositive: totalInterviews > 0,
       icon: TbClock,
       iconColor: "text-purple-400",
@@ -122,8 +158,16 @@ export default function StatsCards({ user }) {
     },
   };
 
+  if (loading) {
+    return (
+      <div className="w-full py-12 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-widest">
+        <div className="h-4 w-4 rounded-full border border-white/20 border-t-[#6C63FF] animate-spin" />
+        Loading your stats...
+      </div>
+    );
+  }
+
   return (
-    // FIXED: Changed layout grid to force a spacious 3-column split on large screens, automatically pushing the other 3 cards to a new line row!
     <motion.div
       variants={containerVariants}
       initial="hidden"
@@ -132,47 +176,35 @@ export default function StatsCards({ user }) {
     >
       {metricsData.map((stat) => {
         const Icon = stat.icon;
-
         return (
           <motion.div key={stat.id} variants={cardVariants}>
-            {/* Padding restored to p-5 to make cards comfortably large */}
             <GlassCard
               hover={true}
               padding="p-5"
               rounded="rounded-2xl"
               className="relative overflow-hidden flex flex-col h-full min-w-0"
             >
-              {/* Card Meta Header */}
               <div className="flex items-center justify-between gap-4 w-full">
                 <span
                   className={`text-[10px] uppercase font-bold tracking-widest ${dark ? "text-slate-500" : "text-slate-400"}`}
                 >
                   {stat.label}
                 </span>
-
                 <div
                   className={`w-8 h-8 rounded-xl border flex items-center justify-center flex-shrink-0 transition-colors ${stat.iconBg}`}
                 >
                   <Icon size={16} className={stat.iconColor} />
                 </div>
               </div>
-
-              {/* Data Value Node */}
               <div className="mt-4 space-y-1.5">
                 <h3
                   className={`text-2xl font-black tracking-tight transition-colors ${dark ? "text-white" : "text-slate-900"}`}
                 >
                   {stat.value}
                 </h3>
-
-                {/* Subtext Context Indicator */}
                 <div className="flex items-center gap-2 pt-0.5 min-w-0">
                   <div
-                    className={`flex items-center justify-center w-4 h-4 rounded-md flex-shrink-0 ${
-                      stat.isPositive
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/10"
-                        : "bg-amber-500/10 text-amber-400 border border-amber-500/10"
-                    }`}
+                    className={`flex items-center justify-center w-4 h-4 rounded-md flex-shrink-0 ${stat.isPositive ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/10" : "bg-amber-500/10 text-amber-400 border border-amber-500/10"}`}
                   >
                     {stat.isPositive ? (
                       <TbArrowUpRight size={10} />
@@ -180,7 +212,6 @@ export default function StatsCards({ user }) {
                       <TbArrowDownRight size={10} />
                     )}
                   </div>
-
                   <span
                     className={`text-xs font-medium truncate ${dark ? "text-slate-400" : "text-slate-500"}`}
                   >
