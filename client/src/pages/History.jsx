@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { NeuralBg } from "../components/ui/NeuralBg.jsx";
 import { useCursorGlow } from "../hooks/useCursorGlow.js";
+import { useGetAllInterviews } from "../hooks/useGetAllInterviews.js"; // 🚀 Hook Imported
 import {
   BsClockHistory,
   BsSearch,
@@ -15,59 +15,23 @@ import {
 } from "react-icons/bs";
 
 function scoreColor(score) {
-  if (score >= 8) return "text-emerald-400"; // Acche marks par Green
-  if (score >= 5) return "text-amber-400"; // Average par Yellow
-  return "text-red-500"; // 5 se kam par Red!
+  if (score >= 8) return "text-emerald-400"; // Green on good scores
+  if (score >= 5) return "text-amber-400"; // Yellow on average scores
+  return "text-red-500"; // Red if less than 5
 }
-      
-export default function HistoryPage() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [interviews, setInterviews] = useState([]);
 
-  // Search aur Filters State
+export default function HistoryPage() {
+  // 🚀 SINGLE LINE REFRESH VIA YOUR CENTRALIZED HOOK
+  const { interviews, loading, error } = useGetAllInterviews();
+
+  // Search and Filters State
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
   const glowData = useCursorGlow() || {};
   const { x, y, ...cursorHandlers } = glowData;
-  const serverUrl = import.meta.env.VITE_SERVER_URL || "";
 
-  // 📡 Backend Core Controller Sync
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchHistory = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await axios.get(
-          `${serverUrl}/api/v1/interview/get-my-interviews`,
-          { withCredentials: true },
-        );
-
-        if (isMounted && res.data?.success && Array.isArray(res.data.data)) {
-          setInterviews(res.data.data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(
-            err.response?.data?.message ||
-              "Failed to load past interview sessions.",
-          );
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchHistory();
-    return () => {
-      isMounted = false;
-    };
-  }, [serverUrl]);
-
-  // 🎛️ Filter aur Search Logic
+  // 🎛️ Filter and Search Mapping Logic
   const filteredInterviews = interviews.filter((item) => {
     const matchesSearch = item.role
       ?.toLowerCase()
@@ -88,7 +52,8 @@ export default function HistoryPage() {
         Icon: BsCheckCircleFill,
       };
     }
-    if (s === "pending" || s === "processing") {
+    // 🚀 Matches 'Incomplete' data status safely from database stream
+    if (s === "incomplete" || s === "pending" || s === "processing") {
       return {
         text: "In Progress",
         style: "bg-amber-500/10 border-amber-500/20 text-amber-400",
@@ -182,7 +147,8 @@ export default function HistoryPage() {
               <option value="completed" className="bg-[#030712]">
                 Completed
               </option>
-              <option value="pending" className="bg-[#030712]">
+              {/* 🚀 Changed value from 'pending' to 'incomplete' to accurately align with backend records */}
+              <option value="incomplete" className="bg-[#030712]">
                 In Progress
               </option>
             </select>
@@ -205,6 +171,7 @@ export default function HistoryPage() {
             <div className="grid grid-cols-1 gap-3">
               {filteredInterviews.map((item) => {
                 const badge = getStatusBadge(item.status);
+                const isCompleted = item.status?.toLowerCase() === "completed";
                 const formattedDate = item.createdAt
                   ? new Date(item.createdAt).toLocaleDateString("en-IN", {
                       day: "numeric",
@@ -225,7 +192,7 @@ export default function HistoryPage() {
                           {item.role || "Software Engineer"}
                         </h3>
                         <span className="text-[10px] bg-white/[0.03] border border-white/[0.05] text-slate-400 px-2 py-0.5 rounded-md font-mono uppercase">
-                          {item.mode || "AI Bot"}
+                          {item.mode || "General"}
                         </span>
                       </div>
 
@@ -244,21 +211,21 @@ export default function HistoryPage() {
                           Final Score
                         </span>
                         <span className="text-sm font-black">
-                          {item.finalScore !== undefined &&
+                          {isCompleted &&
+                          item.finalScore !== undefined &&
                           item.finalScore !== null ? (
                             <>
-                              {/* 🔴 Sirf score value par dynamic/red color lagega */}
                               <span className={scoreColor(item.finalScore)}>
-                                {item.finalScore}
+                                {Number(item.finalScore).toFixed(1)}
                               </span>
-
-                              {/* ⚪ /10 normal light gray color mein chhota dikhega */}
                               <span className="text-slate-200 font-black text-xs">
                                 /10
                               </span>
                             </>
                           ) : (
-                            <span className="text-slate-500">N/A</span>
+                            <span className="text-slate-600 font-normal text-xs">
+                              —
+                            </span>
                           )}
                         </span>
                       </div>
@@ -274,11 +241,17 @@ export default function HistoryPage() {
                       {/* View Report Anchor Button */}
                       <button
                         type="button"
-                        onClick={() =>
-                          (window.location.href = `/interview/report/${item._id}`)
-                        }
+                        onClick={() => {
+                          window.location.href = isCompleted
+                            ? `/reports/${item._id}`
+                            : `/interview/simulation/${item._id}`;
+                        }}
                         className="bg-white/[0.03] hover:bg-[#6C63FF] text-slate-400 hover:text-white p-2.5 rounded-xl border border-white/[0.05] hover:border-transparent transition-all duration-150 active:scale-95 group"
-                        title="View Full Dashboard Report"
+                        title={
+                          isCompleted
+                            ? "View Full Dashboard Report"
+                            : "Resume Interview Session"
+                        }
                       >
                         <BsEye
                           size={14}
