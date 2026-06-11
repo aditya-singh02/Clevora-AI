@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { NeuralBg } from "../components/ui/NeuralBg.jsx";
 import { useCursorGlow } from "../hooks/useCursorGlow.js";
-import { useGetAllInterviews } from "../hooks/useGetAllInterviews.js"; // 🚀 Hook Imported
+import { useGetAllInterviews } from "../hooks/useGetAllInterviews.js"; // 🚀 Centralized Hook Connected Safely
 import {
   BsClockHistory,
   BsSearch,
@@ -15,23 +15,23 @@ import {
 } from "react-icons/bs";
 
 function scoreColor(score) {
-  if (score >= 8) return "text-emerald-400"; // Green on good scores
-  if (score >= 5) return "text-amber-400"; // Yellow on average scores
-  return "text-red-500"; // Red if less than 5
+  if (score >= 8) return "text-emerald-400"; // Acche marks par Green
+  if (score >= 5) return "text-amber-400"; // Average par Yellow
+  return "text-red-500"; // 5 se kam par Red!
 }
 
 export default function HistoryPage() {
-  // 🚀 SINGLE LINE REFRESH VIA YOUR CENTRALIZED HOOK
+  // 🚀 FETCH DATA DIRECTLY FROM YOUR CENTRALIZED HOOK (Zero local axios calls)
   const { interviews, loading, error } = useGetAllInterviews();
 
-  // Search and Filters State
+  // Search aur Filters State
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
   const glowData = useCursorGlow() || {};
   const { x, y, ...cursorHandlers } = glowData;
 
-  // 🎛️ Filter and Search Mapping Logic
+  // 🎛️ Filter aur Search Logic (Stays completely intact)
   const filteredInterviews = interviews.filter((item) => {
     const matchesSearch = item.role
       ?.toLowerCase()
@@ -52,8 +52,7 @@ export default function HistoryPage() {
         Icon: BsCheckCircleFill,
       };
     }
-    // 🚀 Matches 'Incomplete' data status safely from database stream
-    if (s === "incomplete" || s === "pending" || s === "processing") {
+    if (s === "pending" || s === "processing" || s === "incomplete") {
       return {
         text: "In Progress",
         style: "bg-amber-500/10 border-amber-500/20 text-amber-400",
@@ -147,8 +146,7 @@ export default function HistoryPage() {
               <option value="completed" className="bg-[#030712]">
                 Completed
               </option>
-              {/* 🚀 Changed value from 'pending' to 'incomplete' to accurately align with backend records */}
-              <option value="incomplete" className="bg-[#030712]">
+              <option value="pending" className="bg-[#030712]">
                 In Progress
               </option>
             </select>
@@ -171,7 +169,6 @@ export default function HistoryPage() {
             <div className="grid grid-cols-1 gap-3">
               {filteredInterviews.map((item) => {
                 const badge = getStatusBadge(item.status);
-                const isCompleted = item.status?.toLowerCase() === "completed";
                 const formattedDate = item.createdAt
                   ? new Date(item.createdAt).toLocaleDateString("en-IN", {
                       day: "numeric",
@@ -192,7 +189,7 @@ export default function HistoryPage() {
                           {item.role || "Software Engineer"}
                         </h3>
                         <span className="text-[10px] bg-white/[0.03] border border-white/[0.05] text-slate-400 px-2 py-0.5 rounded-md font-mono uppercase">
-                          {item.mode || "General"}
+                          {item.mode || "AI Bot"}
                         </span>
                       </div>
 
@@ -211,21 +208,18 @@ export default function HistoryPage() {
                           Final Score
                         </span>
                         <span className="text-sm font-black">
-                          {isCompleted &&
-                          item.finalScore !== undefined &&
+                          {item.finalScore !== undefined &&
                           item.finalScore !== null ? (
                             <>
                               <span className={scoreColor(item.finalScore)}>
-                                {Number(item.finalScore).toFixed(1)}
+                                {item.finalScore}
                               </span>
                               <span className="text-slate-200 font-black text-xs">
                                 /10
                               </span>
                             </>
                           ) : (
-                            <span className="text-slate-600 font-normal text-xs">
-                              —
-                            </span>
+                            <span className="text-slate-500">N/A</span>
                           )}
                         </span>
                       </div>
@@ -238,20 +232,14 @@ export default function HistoryPage() {
                         {badge.text}
                       </div>
 
-                      {/* View Report Anchor Button */}
+                      {/* 🔒 UNCHANGED CORE ROUTE REDIRECTION */}
                       <button
                         type="button"
-                        onClick={() => {
-                          window.location.href = isCompleted
-                            ? `/reports/${item._id}`
-                            : `/interview/simulation/${item._id}`;
-                        }}
-                        className="bg-white/[0.03] hover:bg-[#6C63FF] text-slate-400 hover:text-white p-2.5 rounded-xl border border-white/[0.05] hover:border-transparent transition-all duration-150 active:scale-95 group"
-                        title={
-                          isCompleted
-                            ? "View Full Dashboard Report"
-                            : "Resume Interview Session"
+                        onClick={() =>
+                          (window.location.href = `/interview/report/${item._id}`)
                         }
+                        className="bg-white/[0.03] hover:bg-[#6C63FF] text-slate-400 hover:text-white p-2.5 rounded-xl border border-white/[0.05] hover:border-transparent transition-all duration-150 active:scale-95 group"
+                        title="View Full Dashboard Report"
                       >
                         <BsEye
                           size={14}
