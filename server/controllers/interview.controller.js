@@ -525,6 +525,7 @@ const endInterview = asyncHandler(async (req, res) => {
                 correctness: Number(averageCorrectness.toFixed(1)),
                 questionWiseScore: interview.questions.map(q => ({
                     question: q.question,
+                    difficulty: q.difficulty,
                     answer: q.answer,
                     score: q.score || 0,
                     feedback: q.feedback || "No feedback",
@@ -548,7 +549,7 @@ const getMyInterviews = asyncHandler(async (req,res) => {
     try{
         const interview = await Interview.find({ userId: req.user._id } )
         .sort({ createdAt: -1 }) // Sort by creation date, most recent first
-            .select("role experience mode finalScore status createdAt"); // Select only necessary fields for the interview history list
+            .select("role experience mode finalScore status createdAt updatedAt"); // Select only necessary fields for the interview history list
 
         if (!interview) {
             throw new ApiError(404, "No interview sessions found for this user")
