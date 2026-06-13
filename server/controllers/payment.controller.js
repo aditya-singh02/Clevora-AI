@@ -1,5 +1,5 @@
 import RazorpayInstance from "../services/razorpay.service.js";
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import Payment from "../models/payment.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
