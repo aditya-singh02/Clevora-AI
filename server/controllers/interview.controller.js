@@ -172,6 +172,8 @@ const startInterview = asyncHandler(async (req, res) => {
             You are a professional ${mode} interviewer at a top tech company
             Speak in simple, natural english and avoid robotic or formal language to create a comfortable interview atmosphere for the candidate as if you are directly interviewing them.
 
+            For mode = "HR", focus on behavioral and situational questions to assess the candidate's soft skills, cultural fit, and general background. 
+            For mode = "Technical", focus on role-specific technical questions that evaluate the candidate's problem-solving abilities, coding skills, projects, and understanding of key concepts relevant to the position they are applying for.
              Generate exactly 5 interview questions based on the candidate's profile.
 
              Strictly return the response in JSON format as an array of questions, without any additional text or explanations.
@@ -470,7 +472,7 @@ const submitAnswer = asyncHandler(async (req, res) => {
 5. Finally, it returns a successful response with a comprehensive report of the interview, including the final score, average confidence, communication, and correctness scores, as well as a question-wise breakdown of the candidate's performance, or handles any errors that occur during the process.*/
 const endInterview = asyncHandler(async (req, res) => {
     try {
-        const { interviewId } = req.body;
+        const { interviewId, integrityReport } = req.body;
 
         if (!interviewId) {
             throw new ApiError(400, "Interview ID is required")
@@ -510,7 +512,10 @@ const endInterview = asyncHandler(async (req, res) => {
         const averageConfidence = totalQuestions > 0 ? totalConfidence / totalQuestions : 0;
         const averageCommunication = totalQuestions > 0 ? totalCommunication / totalQuestions : 0;
         const averageCorrectness = totalQuestions > 0 ? totalCorrectness / totalQuestions : 0;
-
+        
+        if(integrityReport){
+            interview.integrityReport = integrityReport;
+        }
         interview.finalScore = finalScore; 
         interview.status = "Completed";
         await interview.save();
@@ -533,6 +538,7 @@ const endInterview = asyncHandler(async (req, res) => {
                     communication: q.communication || 0,
                     correctness: q.correctness || 0
                 })),
+                integrityReport: interview.integrityReport ,
             }, "Interview ended and scored successfully"))
     } catch (error) {
         throw new ApiError(500, `Failed to end interview. Please try again. ${error.message}`)
@@ -637,6 +643,12 @@ const getInterviewReport = asyncHandler(async (req,res) => {
                     confidence: q.confidence || 0,
                     communication: q.communication || 0,
                     correctness: q.correctness || 0,
+                },
+                // Integrity report for each question, if available, can provide insights into potential issues with the candidate's answer, such as plagiarism or use of unauthorized resources. This can help employers assess the authenticity of the candidate's responses and make informed decisions based on the integrity of the interview process.
+                integrityReport: {
+                    score: interview.integrityReport?.score ?? 100,
+                    totalViolations: interview.integrityReport?.totalViolations ?? 0,
+                    violations: interview.integrityReport?.violations ?? [],
                 },
                 feedback: q.feedback || "No assessment criteria evaluated.",
             }))     

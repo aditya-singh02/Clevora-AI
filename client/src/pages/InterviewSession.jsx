@@ -1,11 +1,11 @@
 // src/pages/InterviewSession.jsx
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 // 🚀 BOTH SEPARATE HOOKS IMPORTED CLEANLY
 import { useInterviewSession } from "../hooks/useInterviewSession.js";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder.js";
-import useInterviewIntegrity from "../hooks/useInterviewIntegrity.js";
+import { useIntegrity } from "../hooks/useIntegrity.js";
 
 import AIAvatar from "../components/Interview/Session/AIAvatar.jsx";
 import QuestionCard from "../components/Interview/Session/QuestionCard.jsx";
@@ -13,6 +13,7 @@ import AnswerPanel from "../components/Interview/Session/AnswerPanel.jsx";
 import FeedbackCard from "../components/Interview/Session/FeedbackCard.jsx";
 import ProgressBar from "../components/Interview/Session/ProgressBar.jsx";
 import EndingOverlay from "../components/Interview/Session/EndingOverlay.jsx";
+import IntegrityWarning from "../components/Interview/Session/IntegrityWarning.jsx"; // 🚀 NEW COMPONENT FOR VIOLATION TOASTS
 
 import FadeIn from "../components/ui/FadeIn.jsx";
 import { NeuralBg } from "../components/ui/NeuralBg.jsx";
@@ -47,6 +48,7 @@ export default function InterviewSession() {
     timeLeft,
     handleSubmitAnswer,
     handleNextQuestion,
+    handleEndInterview,
     // 🚨 Extract actual dynamic evaluation data if returned by your session hook
     interviewData,
   } = sessionEngine;
@@ -65,56 +67,33 @@ export default function InterviewSession() {
     clearTranscript,
   } = recorderEngine;
 
-  // ── 🚀 HOOK 3: FIXED INTEGRITY HOOK CALL WITH CORRECT PARAMETER ──
-  const { integrityStats } = useInterviewIntegrity(sessionId);
+  const [warning, setWarning] = useState(null);
 
-  // Keep a reference of mutable stats to prevent closure staleness inside useEffect
+  const {
+    integrityScore,
+    totalViolations,
+    violations,
+    startTracking,
+    stopTracking,
+    getReport,
+  } = useIntegrity({
+    onViolation: (v) => setWarning(v), // 🎯 FIXED: Direct bridge handler linking to live warnings UI toast!
+  });
+
+  // 2. Update the Hook call to use the callback
   const statsRef = useRef();
-  statsRef.current = integrityStats;
+  statsRef.current = { integrityScore, totalViolations, violations };
 
-  // ── 🎯 THE JUGAD INTERCEPTOR: LINKING STATE ROUTING WITHOUT DB SCHEMA ──
+  const onEndInterview = () => {
+    stopTracking();
+    const integrityPayload = getReport();
+    handleEndInterview(integrityPayload);
+  };
+
   useEffect(() => {
-    // Jab core engine bolta hai ki interview is ending (isEnding === true)
-    if (isEnding) {
-      console.log(
-        "🎯 INTERCEPTING ROUTE: Sending live telemetry data to report page...",
-      );
-
-      const currentStats = statsRef.current || {};
-
-      // 🚀 EXACT STRUCTURAL MAPPING AS EXPECTED BY YOUR REPORT PAGE
-      const syntheticReportPayload = {
-        finalScore: interviewData?.finalScore || feedback?.score || 1.2,
-        confidence: interviewData?.confidence || 1.2,
-        communication: interviewData?.communication || 1.2,
-        correctness: interviewData?.correctness || 0.8,
-
-        questionWiseScore:
-          interviewData?.questions || routerPassedQuestions || [],
-
-        metaData: {
-          role: location.state?.role || "Full Stack Developer",
-          mode: location.state?.mode || "Technical",
-          totalQuestions: totalQuestions || 5,
-          totalAnswered: currentIndex + 1,
-        },
-        createdAt: new Date().toISOString(),
-
-        // 🌟 YEH HAI WOH KEYS JO INTEGRITY REPORT CARD PADHEGA:
-        integrityScore: currentStats.score ?? 100,
-        tabSwitchesCount: currentStats.tabSwitches ?? 0,
-        copyCount: currentStats.copyAttempts ?? 0,
-        pasteCount: currentStats.pasteBlocked ?? 0,
-        timeAwaySeconds: currentStats.timeAway ?? 0,
-      };
-
-      // Forced direct dispatch with dynamic state object
-      navigate(`/interview/report/${sessionId}`, {
-        state: { report: syntheticReportPayload },
-        replace: true, // Taki user back dabakar wapas chalte interview me na ghuse
-      });
-    }
-  }, [isEnding, sessionId, navigate, interviewData]);
+    startTracking();
+    return () => stopTracking();
+  }, [startTracking, stopTracking]);
 
   // ── 🤝 THE BRIDGE: CONNECTING VOICE STATE TO API UTILITY ──
   const onFinalAnswerSubmit = async (typedOrVoiceText) => {
@@ -122,21 +101,11 @@ export default function InterviewSession() {
 
     // interface se direct typedText pass ho raha hai ya phir mic ka voice transcript
     const finalAnswer = typedOrVoiceText || transcript;
+    console.log("🎤 Final Answer Submitted:", finalAnswer); // Debug log to verify answer content
 
-    console.log("UI Pipeline -> Sending final answer context:", finalAnswer);
-
-    console.log("=========================================");
-    console.log("🚨 HOOK INTEGRITY TELEMETRY CAPTURED:");
-    console.log("Tab Switches Count :", integrityStats?.tabSwitches);
-    console.log("Copy Attempts Count:", integrityStats?.copyAttempts);
-    console.log("Paste Blocked Count:", integrityStats?.pasteBlocked);
-    console.log("Time Away (Seconds):", integrityStats?.timeAway);
-    console.log("Calculated Score    :", integrityStats?.score);
-    console.log("=========================================");
-
-    // 🚀 Passing both textual answer and security monitoring metrics to hook pipeline
-    await handleSubmitAnswer(finalAnswer, integrityStats);
-
+    const currentIntegrityReportPayload = getReport();
+    // 🚀 Passing textual answer context alongside dynamic security configurations to pipeline
+    await handleSubmitAnswer(finalAnswer, currentIntegrityReportPayload);
     clearTranscript();
   };
 
@@ -211,7 +180,13 @@ export default function InterviewSession() {
                 <FeedbackCard
                   feedback={feedback.feedback}
                   score={feedback.score}
-                  onNext={handleNextQuestion}
+                  onNext={() => {
+                    if (sessionEngine.isLastQuestion) {
+                      onEndInterview();
+                    } else {
+                      handleNextQuestion();
+                    }
+                  }}
                 />
               )}
             </div>
@@ -241,11 +216,17 @@ export default function InterviewSession() {
                 stopRecording={toggleRecording}
                 onSubmit={onFinalAnswerSubmit}
                 isSubmitting={isSubmitting}
+                onPasteBlocked={() => {
+                  // Manually trigger a warning if paste is attempted
+                  setWarning({ type: "paste", sub: "Paste is blocked!" });
+                }}
               />
             </div>
           </div>
         </FadeIn>
       </div>
+
+      <IntegrityWarning warning={warning} onDismiss={() => setWarning(null)} />
 
       {/* Security Footer Tracking Controls */}
       <div className="w-full max-w-7xl mx-auto flex items-center justify-between opacity-40 border-t border-white/[0.03] pt-4 mt-6 relative z-10">

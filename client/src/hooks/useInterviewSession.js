@@ -105,14 +105,14 @@ export function useInterviewSession({ interviewId, questions = [] }) {
     }, [isLastQuestion, interviewId])
 
     // 🚀 FIXED: Corrected route mapping template string path pattern match
-    const handleEndInterview = useCallback(async () => {
+    const handleEndInterview = useCallback(async (integrityReport = null) => {
         setIsEnding(true)
         clearInterval(timerRef.current)
 
         try {
             const { data } = await axios.post(
                 `${SERVER}/api/v1/interview/end`,
-                { interviewId },
+                { interviewId, integrityReport },
                 { withCredentials: true }
             )
 

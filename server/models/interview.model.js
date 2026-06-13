@@ -12,7 +12,7 @@ const questionSchema = new mongoose.Schema(
 
         score: {// Add a score field to store the candidate's score for each question
             type: Number,
-             default: 0, // Default score is 0, it can be updated after evaluating the candidate's answer
+            default: 0, // Default score is 0, it can be updated after evaluating the candidate's answer
         },
         confidence: {// Add a confidence field to store the AI's confidence level in the candidate's answer
             type: Number,
@@ -21,19 +21,19 @@ const questionSchema = new mongoose.Schema(
         communication: {// Add a communicationSkills field to store the AI's evaluation of the candidate's communication skills based on their answer
             type: Number,
             default: 0, // Default communication skills score is 0, it can be updated after evaluating the candidate's answer
-        }, 
+        },
         correctness: {
-            type: Number, 
+            type: Number,
             default: 0,
         },
-},{ timestamps: true })
+    }, { timestamps: true })
 
 
 const interviewSchema = new mongoose.Schema(
-    { 
+    {
         // Links this entire session securely to your logged-in candidate profile in the database, ensuring that all interactions and data are properly associated with the correct user account.
         userId: {
-            type: mongoose.Schema.Types.ObjectId, 
+            type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
@@ -42,12 +42,12 @@ const interviewSchema = new mongoose.Schema(
             required: true,
         },
         experience: {
-           type: String,
-           required: true,
+            type: String,
+            required: true,
         },
         mode: {
             type: String,
-            enum: ["HR", "Technical"], 
+            enum: ["HR", "Technical"],
             required: true,
         },
         resumeText: {
@@ -73,8 +73,29 @@ const interviewSchema = new mongoose.Schema(
             type: String,
             enum: ["Incomplete", "Completed"],
             default: "Incomplete"
-        }
+        },
 
-},{ timestamps: true })
+        integrityReport: {
+            score: {
+                type: Number,
+                default: 100,
+            },
+            totalViolations: {
+                type: Number,
+                default: 0,
+            },
+            violations: [
+                {
+                    type: {
+                        type: String,
+                        enum: ["tab_switch", "paste", "right_click", "keyboard_shortcut"],
+                    },
+                    count: { type: Number, default: 0 },
+                    timestamps: [Date],
+                },
+            ],
+        },
+
+    }, { timestamps: true })
 
 export const Interview = mongoose.model("Interview", interviewSchema);
