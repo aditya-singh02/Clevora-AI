@@ -1,6 +1,6 @@
 import fs from "fs";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import askAI from "../services/openRouter.service.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
