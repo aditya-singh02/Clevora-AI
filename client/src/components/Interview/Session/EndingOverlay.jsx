@@ -1,4 +1,3 @@
-// src/components/Interview/Session/EndingOverlay.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { TbLoaderQuarter, TbShieldCheck } from "react-icons/tb";

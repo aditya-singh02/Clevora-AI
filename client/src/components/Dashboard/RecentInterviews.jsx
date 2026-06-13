@@ -22,7 +22,7 @@ export default function RecentInterviews() {
   const { dark } = useTheme();
   const navigate = useNavigate();
 
-  // 🚀 FETCH DATA VIA CUSTOM HOOK
+  //  FETCH DATA VIA CUSTOM HOOK
   const { interviews, loading } = useGetAllInterviews();
 
   const recentSessions = [...interviews]

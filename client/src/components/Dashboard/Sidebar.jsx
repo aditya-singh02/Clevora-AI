@@ -2,10 +2,10 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch } from "react-redux";
-import axios from "axios"; // Added for seamless backend session wipe
+import axios from "axios"; 
 import { useTheme } from "../../context/ThemeContext.jsx";
-import { setUserData } from "../../redux/userSlice"; // FIXED: Correct verified named import
-import { ServerURL } from "../../App.jsx"; // Centralized gate source link
+import { setUserData } from "../../redux/userSlice"; 
+import { ServerURL } from "../../App.jsx"; 
 import {
   TbHome,
   TbMicrophone2,
@@ -53,7 +53,7 @@ export default function Sidebar({ user, isMobile = false, closeMobileMenu }) {
       // 4. Mobile responsive layout closing check
       if (isMobile && closeMobileMenu) closeMobileMenu();
 
-      // 5. FIXED: Direct hard redirect to Root landing node ("/") instead of phantom "/logout"
+      // 5. Direct hard redirect to Root landing node ("/") instead of phantom "/logout"
       navigate("/", { replace: true });
     }
   };

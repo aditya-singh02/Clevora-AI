@@ -25,11 +25,11 @@ import {
 } from "react-icons/bs";
 import { RiLoader4Line } from "react-icons/ri";
 
-// ─── Backend URL from .env ─────────────────────────────────────────────────────
+// ─── Backend URL from .env ──────────────────
 
 const SERVER = import.meta.env.VITE_SERVER_URL;
 
-// ─── Password Rules (must match backend exactly) ──────────────────────────────
+// ─── Password Rules (must match backend exactly) ─────────────────
 // Backend regex
 const PWD_RULES = [
   { id: "len", label: "At least 8 characters", test: (p) => p.length >= 8 },
@@ -310,10 +310,6 @@ function Tabs({ active, onChange }) {
   );
 }
 
-// ════════════════════════════════════════════════════════════════
-//  MAIN AUTH COMPONENT
-// ════════════════════════════════════════════════════════════════
-
 export default function Auth({ isOpen, onClose, defaultView = "login" }) {
   // ─── Redux & Router ────────────────────────────────────────────
   const dispatch = useDispatch();
@@ -502,7 +498,7 @@ export default function Auth({ isOpen, onClose, defaultView = "login" }) {
     }
   };
 
-  // ── C. Register ────────────────────────────────────────────────
+  // ── C. Register ────────────────────────────────────────
   // FLOW:
   // 1. User submits name, email, password, confirmPassword
   // 2. Frontend validation (empty, password match, strength)
@@ -540,7 +536,7 @@ export default function Auth({ isOpen, onClose, defaultView = "login" }) {
     }
   };
 
-  // ── D. Forgot Password ─────────────────────────────────────────
+  // ── D. Forgot Password ───────────────────────────
   // FLOW:
   // 1. User submits email
   // 2. POST /api/v1/auth/forgot-password

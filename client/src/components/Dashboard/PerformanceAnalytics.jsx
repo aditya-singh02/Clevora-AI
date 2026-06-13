@@ -15,7 +15,7 @@ import { TbTrendingUp, TbLockOpen } from "react-icons/tb";
 export default function PerformanceAnalytics() {
   const { dark } = useTheme();
 
-  // 🚀 FETCH DATA VIA CUSTOM HOOK
+  //  FETCH DATA VIA CUSTOM HOOK
   const { interviews, loading } = useGetAllInterviews();
 
   const completedInterviews = [...interviews]

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 
-// 🚀 BOTH CLIPS IMPORTED CLEANLY
 import femaleIdle from "../../../assets/videos/femaleIdle.mp4";
 import femaleSpeaking from "../../../assets/videos/femaleSpeaking.mp4";
 
@@ -80,7 +79,7 @@ export default function AIAvatar({ currentQuestion, isSubmitting, timeLeft }) {
       <div className="w-full h-full rounded-xl overflow-hidden border border-white/[0.05] bg-slate-950 shadow-2xl relative flex items-center justify-center mt-6">
         <video
           ref={videoRef}
-          // 🚀 DYNAMIC SOURCE SWITCH: Bolte waqt muh hilega, chup rehte waqt normal sir hilaayega loop par
+          // DYNAMIC SOURCE SWITCH: Bolte waqt muh hilega, chup rehte waqt normal sir hilaayega loop par
           src={isSpeaking ? femaleSpeaking : femaleIdle}
           autoPlay
           loop

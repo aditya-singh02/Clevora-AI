@@ -1,4 +1,3 @@
-// src/components/Interview/Setup/StepIndicator.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { BsCheckLg } from "react-icons/bs";
@@ -10,7 +9,6 @@ const STEPS = [
   { num: 3, label: "Configure" },
 ];
 
-// 🚀 FIXED: Ab hum conditions par rely nahi karenge, seedhe customStep index pass karenge
 export default function StepIndicator({ activeStep = 1 }) {
   const { dark } = useTheme();
 

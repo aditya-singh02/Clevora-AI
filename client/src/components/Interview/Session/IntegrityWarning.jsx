@@ -1,13 +1,4 @@
-// components/IntegrityWarning.jsx
-// Shows a dismissible warning toast at the top of the screen
-// every time a violation is recorded during the interview.
-//
-// Usage in InterviewPage.jsx:
-//   const { startTracking, stopTracking, getReport, integrityScore, totalViolations } = useIntegrity({
-//     onViolation: (v) => setWarning(v),
-//   });
-//   <IntegrityWarning warning={warning} onDismiss={() => setWarning(null)} />
-
+// Shows a dismissible warning toast at the top of the screen every time a violation is recorded during the interview.
 import React, { useEffect } from "react";
 import {
   BsShieldExclamation,

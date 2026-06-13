@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
-// 🚀 BOTH SEPARATE HOOKS IMPORTED CLEANLY
+// BOTH SEPARATE HOOKS IMPORTED CLEANLY
 import { useInterviewSession } from "../hooks/useInterviewSession.js";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder.js";
 import { useIntegrity } from "../hooks/useIntegrity.js";
@@ -21,7 +21,7 @@ import { useCursorGlow } from "../hooks/useCursorGlow.js";
 import { TbAlertCircle } from "react-icons/tb";
 
 export default function InterviewSession() {
-  // 🚀 URL se 'sessionId' extract ho raha hai
+  // URL se 'sessionId' extract ho raha hai
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,7 +31,7 @@ export default function InterviewSession() {
   const glowData = useCursorGlow() || {};
   const { x, y, ...cursorHandlers } = glowData;
 
-  // ── 🚀 HOOK 1: CORE INTERVIEW ENGINE ──
+  // ──  HOOK 1: CORE INTERVIEW ENGINE ──
   const sessionEngine = useInterviewSession({
     interviewId: sessionId,
     questions: routerPassedQuestions,
@@ -49,11 +49,11 @@ export default function InterviewSession() {
     handleSubmitAnswer,
     handleNextQuestion,
     handleEndInterview,
-    // 🚨 Extract actual dynamic evaluation data if returned by your session hook
+    // Extract actual dynamic evaluation data if returned by your session hook
     interviewData,
   } = sessionEngine;
 
-  // ── 🚀 HOOK 2: SEPARATE VOICE ENGINE ──
+  // ── HOOK 2: SEPARATE VOICE ENGINE ──
   const recorderEngine = useVoiceRecorder();
 
   const {
@@ -77,7 +77,7 @@ export default function InterviewSession() {
     stopTracking,
     getReport,
   } = useIntegrity({
-    onViolation: (v) => setWarning(v), // 🎯 FIXED: Direct bridge handler linking to live warnings UI toast!
+    onViolation: (v) => setWarning(v), // FIXED: Direct bridge handler linking to live warnings UI toast!
   });
 
   // 2. Update the Hook call to use the callback
@@ -95,7 +95,7 @@ export default function InterviewSession() {
     return () => stopTracking();
   }, [startTracking, stopTracking]);
 
-  // ── 🤝 THE BRIDGE: CONNECTING VOICE STATE TO API UTILITY ──
+  // ── THE BRIDGE: CONNECTING VOICE STATE TO API UTILITY ──
   const onFinalAnswerSubmit = async (typedOrVoiceText) => {
     stopRecording();
 
@@ -104,7 +104,7 @@ export default function InterviewSession() {
     console.log("🎤 Final Answer Submitted:", finalAnswer); // Debug log to verify answer content
 
     const currentIntegrityReportPayload = getReport();
-    // 🚀 Passing textual answer context alongside dynamic security configurations to pipeline
+    // Passing textual answer context alongside dynamic security configurations to pipeline
     await handleSubmitAnswer(finalAnswer, currentIntegrityReportPayload);
     clearTranscript();
   };
@@ -205,7 +205,7 @@ export default function InterviewSession() {
                 </div>
               )}
 
-              {/* 🚀 SUBMIT RE-WIDGET LINKED */}
+              {/* SUBMIT RE-WIDGET LINKED */}
               <AnswerPanel
                 isRecording={isRecording}
                 transcript={transcript + (interimText ? interimText : "")}

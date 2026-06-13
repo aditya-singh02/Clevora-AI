@@ -5,7 +5,7 @@ import { useTheme } from "../../context/ThemeContext";
 import GlassCard from "../ui/GlassCard.jsx";
 import { TbMicrophone2, TbCoin, TbArrowRight } from "react-icons/tb";
 
-// 🚀 Fixed actions matrix with super simple text strings
+// actions matrix with super simple text strings
 const actions = [
   {
     title: "Start AI Interview",
@@ -37,7 +37,7 @@ export default function QuickActions() {
 
   return (
     <div className="space-y-4 w-full">
-      {/* 🌟 Section Head Title changed to simple vocabulary */}
+      {/* 🌟 Section Head Title  */}
       <h2
         className={`text-xs font-bold uppercase tracking-[0.2em] ${dark ? "text-slate-500" : "text-slate-400"}`}
       >

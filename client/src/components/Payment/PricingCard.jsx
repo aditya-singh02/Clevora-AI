@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { RiCoinLine } from "react-icons/ri";
-import { VscLoading } from "react-icons/vsc"; // 🚀 Added dynamic loading spinner icon
+import { VscLoading } from "react-icons/vsc"; //  Added dynamic loading spinner icon
 import { useTheme } from "../../context/ThemeContext.jsx";
 
 export default function PricingCard({

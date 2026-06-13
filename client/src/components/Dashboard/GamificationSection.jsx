@@ -12,7 +12,7 @@ import {
 import GlassCard from "../ui/GlassCard.jsx";
 
 export default function GamificationSection() {
-  // 🚀 Fetch data from your custom hook
+  // Fetch data via custom hook
   const { interviews, loading } = useGetAllInterviews();
 
   // Count only finished interviews safely

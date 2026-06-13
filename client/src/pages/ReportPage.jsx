@@ -46,7 +46,7 @@ export default function ReportPage() {
           { withCredentials: true },
         );
 
-        // 🚀 Matches your standard custom response structure perfectly
+        // Matches your standard custom response structure perfectly
         if (response.data?.success && response.data.data) {
           setReport(response.data.data);
         }
@@ -83,7 +83,7 @@ export default function ReportPage() {
     );
   }
 
-  // 🚀 CLEAN SEAMLESS DATA COUPLING FROM CONTROLLER STRUCTURE
+  //  CLEAN SEAMLESS DATA COUPLING FROM CONTROLLER STRUCTURE
   const meta = report.metaData || {};
   const scores = report.overallScores || {
     finalScore: report.finalScore || 0,

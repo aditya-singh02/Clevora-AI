@@ -1,24 +1,20 @@
-// src/hooks/usePayment.js
-// Master hook for the full Razorpay payment lifecycle.
-// Connected seamlessly with Redux user slice and standardized pricing service layer.
-
 import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { createOrder, verifyPayment, reportFailed } from "../services/payment.service.js";
 
 import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice.js"; // 🚀 OPTIONAL: If you want to update user credits in real-time after purchase, you can dispatch setUserData here with the new credits from the verifyPayment response
+import { setUserData } from "../redux/userSlice.js"; // OPTIONAL: If you want to update user credits in real-time after purchase, you can dispatch setUserData here with the new credits from the verifyPayment response
 
 export function usePayment() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // 🚀 Redux state check to match your persisted storage keys
+    //  Redux state check to match your persisted storage keys
     const userState = useSelector((state) => state.user);
     const user = userState?.user || userState;
 
-    // ── States ────────────────────────────────────────────────────────────────
+    // ── States ────
     const [isLoading, setIsLoading] = useState(false);
     const [activePlan, setActivePlan] = useState(null);
     const [overlayMsg, setOverlayMsg] = useState("");
@@ -38,12 +34,12 @@ export function usePayment() {
         rzpRef.current = null;
     }, []);
 
-    // ── Main handler ──────────────────────────────────────────────────────────
+    // ── Main handler ──────
     const handleBuy = useCallback(
         async (plan, sdkReady) => {
             if (isLoading) return;
 
-            // 🚀 Guard: Checking if script injection is 100% evaluated
+            // Checking if script injection is 100% evaluated
             if (!sdkReady || !window.Razorpay) {
                 showError("Payment system is not fully loaded yet. Please try again in a moment.");
                 return;
@@ -102,7 +98,7 @@ export function usePayment() {
                     },
                 },
 
-                // 🏆 Success Handshake handler
+                // Success Handshake handler
                 handler: async (response) => {
                     setOverlayMsg("Verifying payment…");
                     try {
@@ -153,12 +149,12 @@ export function usePayment() {
                 return;
             }
 
-            // 🔴 Bank Declined / Failure event listener tracking
+            // Bank Declined / Failure event listener tracking
             rzp.on("payment.failed", async (response) => {
                 await reportFailed(order.id, `${response.error?.code}:${response.error?.reason}`);
                 resetLoadingState();
 
-                // 🚀 REDIRECT TO FAILURE PAGE WITH STATE LOGS
+                //  REDIRECT TO FAILURE PAGE WITH STATE LOGS
                 navigate("/payment/failure", {
                     state: {
                         plan,

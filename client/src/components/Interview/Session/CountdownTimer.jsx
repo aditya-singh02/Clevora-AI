@@ -1,4 +1,3 @@
-// src/components/Interview/Session/CountdownTimer.jsx
 import React from "react";
 import { TbClock } from "react-icons/tb";
 

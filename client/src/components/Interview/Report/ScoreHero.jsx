@@ -1,4 +1,3 @@
-// src/components/Interview/Report/ScoreHero.jsx
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "../../../context/ThemeContext";

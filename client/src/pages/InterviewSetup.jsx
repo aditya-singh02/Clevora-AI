@@ -1,10 +1,8 @@
-// src/pages/InterviewSetup.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import useInterviewSetup from "../hooks/useInterviewSetup.js";
 import {useCursorGlow} from "../hooks/useCursorGlow.js";
 
-// 🚀 SAARI 5 COMPONENTS LINES SE IMPORTED
 import StepIndicator from "../components/Interview/Setup/StepIndicator.jsx";
 import ResumeUploader from "../components/Interview/Setup/ResumeUploader.jsx";
 import ResumePreview from "../components/Interview/Setup/ResumePreview.jsx";
@@ -74,7 +72,7 @@ export default function InterviewSetup() {
 
       <div className="w-full max-w-7xl mx-auto relative z-10 my-auto py-4">
         <FadeIn className="space-y-8">
-          {/* ⚡ NEW: STEP 1 PROGRESS INDICATOR AT THE TOP */}
+          {/* ⚡  STEP 1 PROGRESS INDICATOR AT THE TOP */}
           <StepIndicator
             activeStep={!file ? 1 : finalConfig?.role || extractedData ? 3 : 2}
           />
@@ -130,7 +128,7 @@ export default function InterviewSetup() {
                     onModeChange={setSelectedMode}
                   />
 
-                  {/* 🚀 NEW: CONFIRM START COMPONENT INTEGRATED */}
+                  {/*  NEW: CONFIRM START COMPONENT INTEGRATED */}
                   <ConfirmStart
                     selectedMode={selectedMode}
                     isStarting={isStarting}
@@ -138,7 +136,7 @@ export default function InterviewSetup() {
                       console.log(
                         "ConfirmStart button clicked! Selected Mode:",
                         selectedMode,
-                      ); // 👈 Browser Inspect Console me check karne ke liye log
+                      ); //  Browser Inspect Console me check karne ke liye log
 
                       // Check karo ki tumhare hook ka function arguments mangta hai ya nahi:
                       if (typeof startInterviewSession === "function") {

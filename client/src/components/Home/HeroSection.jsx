@@ -36,7 +36,7 @@ export default function HeroSection({ onLogin, onSignup }) {
     >
       <motion.div style={{ y }} className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-14 items-center">
-          {/* ── LEFT: Text ─────────────────────────────────── */}
+          {/* ── LEFT: Text */}
           <div>
             {/* Badge */}
             <motion.div

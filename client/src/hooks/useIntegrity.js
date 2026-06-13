@@ -1,4 +1,3 @@
-// hooks/useIntegrity.js
 // Tracks integrity violations during an interview session.
 // Call startTracking() when interview begins, stopTracking() when it ends.
 // getReport() returns the final integrityReport object to send to the backend.

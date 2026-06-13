@@ -1,4 +1,3 @@
-// src/pages/PaymentSuccess.jsx
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ export default function PaymentSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 🚀 LOCAL LOADER STATE: Jo pricing page ke jhanjhat ko khatam karegi
+  //  LOCAL LOADER STATE: Jo pricing page ke jhanjhat ko khatam karegi
   const [isGenerating, setIsGenerating] = useState(true);
 
   const userState = useSelector((state) => state.user);
@@ -28,7 +27,7 @@ export default function PaymentSuccess() {
       return;
     }
 
-    // 🚀 1.2 second ka smooth transition fake timer taaki receipt generate hoti hui dikhe
+    // 1.2 second ka smooth transition fake timer taaki receipt generate hoti hui dikhe
     const timer = setTimeout(() => {
       setIsGenerating(false);
     }, 1200);
@@ -38,7 +37,7 @@ export default function PaymentSuccess() {
 
   if (!location.state) return null;
 
-  // 🎫 1. HIGH-END NEURAL LOADER SCREEN (Pricing page ka patta saaf)
+  // 1. HIGH-END NEURAL LOADER SCREEN (Pricing page ka patta saaf)
   if (isGenerating) {
     return (
       <div className="min-h-screen w-full bg-[#030712] flex flex-col items-center justify-center space-y-4 font-sans select-none">
@@ -61,7 +60,7 @@ export default function PaymentSuccess() {
     );
   }
 
-  // 🎫 2. ORIGINAL SUCCESS RECEIPT SCREEN
+  //  2. ORIGINAL SUCCESS RECEIPT SCREEN
   return (
     <div className="dark min-h-screen w-full bg-[#030712] text-slate-200 py-20 px-4 flex flex-col items-center justify-center relative overflow-hidden select-none font-sans">
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full blur-[140px] bg-emerald-500/[0.08] pointer-events-none" />

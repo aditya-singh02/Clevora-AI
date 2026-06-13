@@ -84,7 +84,7 @@ export default function PerformanceChart({ questions = [] }) {
         Score Trend — Question by Question
       </h3>
 
-      {/* 🚀 FIXED DETACHED HEIGHT HOISTING WRAPPER */}
+      {/* FIXED DETACHED HEIGHT HOISTING WRAPPER */}
       <div className="w-full h-[240px] relative">
         {data.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">

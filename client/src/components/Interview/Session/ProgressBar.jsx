@@ -1,4 +1,3 @@
-// src/components/Interview/Session/ProgressBar.jsx
 import React from "react";
 
 export default function ProgressBar({ currentIdx, totalQuestions }) {

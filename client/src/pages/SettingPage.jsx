@@ -56,7 +56,7 @@ export default function SettingsPage() {
 
   const active = TABS.find((t) => t.id === activeTab);
 
-  // 🚀 LOGOUT CLEANUP CONTROLLER
+  //  LOGOUT CLEANUP CONTROLLER
   const handleLogout = () => {
     if (!window.confirm("Are you sure you want to log out of your session?"))
       return;
@@ -169,7 +169,7 @@ export default function SettingsPage() {
             })}
           </nav>
 
-          {/* 🚀 FIXED BOTTOM SIDEBAR LOGOUT ACTION LINK */}
+          {/* FIXED BOTTOM SIDEBAR LOGOUT ACTION LINK */}
           {/* mt-auto expands height gap vertically pushing this button exactly to the layout base footer */}
           <button
             type="button"

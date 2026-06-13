@@ -1,4 +1,3 @@
-// src/components/Interview/Setup/ResumeUploader.jsx
 import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {

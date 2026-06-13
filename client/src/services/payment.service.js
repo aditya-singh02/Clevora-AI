@@ -1,7 +1,6 @@
-// src/services/payment.service.js
 // Handles all frontend → backend payment API calls directly using global Axios configuration.
 
-import axios from "axios"; // 🚀 FIXED: Imported standard axios instead of non-existent api.js
+import axios from "axios"; 
 
 // ─── Typed error for payment failures ────────────────────────────────────────
 export class PaymentError extends Error {
@@ -49,7 +48,6 @@ export async function createOrder(plan) {
     }
 
     try {
-        // 🚀 FIXED: Route changed to match your backend global proxy or router path (/api/v1/payment)
         const { data } = await axios.post("/api/v1/payment/order", {
             planId: plan.id,
             amount: plan.inr, // Mapped to match pricing array
@@ -102,7 +100,7 @@ export async function reportFailed(razorpayOrderId, reason = "unknown") {
     if (!razorpayOrderId) return;
 
     try {
-        // 🚀 FIXED: Route changed to /api/v1/payment/failed
+        //  Route changed to /api/v1/payment/failed
         await axios.post("/api/v1/payment/failed", {
             razorpayOrderId,
             reason,
@@ -116,7 +114,7 @@ export async function reportFailed(razorpayOrderId, reason = "unknown") {
 // GET /api/v1/payment/history
 export async function getPaymentHistory() {
     try {
-        // 🚀 FIXED: Route changed to /api/v1/payment/history
+        // : Route changed to /api/v1/payment/history
         const { data } = await axios.get("/api/v1/payment/history");
         return data?.data ?? [];
     } catch (err) {

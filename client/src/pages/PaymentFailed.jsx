@@ -1,4 +1,3 @@
-// src/pages/PaymentFailure.jsx
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,10 +12,10 @@ export default function PaymentFailure() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 🚀 Extract safe dynamic states passed from routing layer
+  // Extract safe dynamic states passed from routing layer
   const { plan, errorMsg, orderId } = location.state || {};
 
-  // 🚀 Safety Guard: Agar koi bina failure data ke direct hit kare URL, toh bypass to billing
+  // Safety Guard: Agar koi bina failure data ke direct hit kare URL, toh bypass to billing
   useEffect(() => {
     if (!location.state) {
       console.warn("⚠️ Direct failure route access denied. Redirecting.");
@@ -34,12 +33,12 @@ export default function PaymentFailure() {
 
   return (
     <div className="dark min-h-screen w-full bg-[#030712] text-slate-200 py-20 px-4 flex flex-col items-center justify-center relative overflow-hidden select-none font-sans">
-      {/* 🔮 High-End Cybernetic Red/Amber Glows */}
+      {/*  High-End Cybernetic Red/Amber Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full blur-[140px] bg-red-500/[0.06] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[160px] bg-amber-500/[0.03] pointer-events-none" />
 
       <div className="w-full max-w-md mx-auto relative z-10 text-center space-y-8">
-        {/* ❌ Step 1: Animated Rejection Cross */}
+        {/* Step 1: Animated Rejection Cross */}
         <div className="flex justify-center">
           <motion.div
             initial={{ scale: 0, rotate: 45 }}
@@ -72,7 +71,7 @@ export default function PaymentFailure() {
           </motion.p>
         </div>
 
-        {/* 🎫 Step 2: The Failure Details Container */}
+        {/* Step 2: The Failure Details Container */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,7 +112,7 @@ export default function PaymentFailure() {
           </div>
         </motion.div>
 
-        {/* 💡 Safe Money Trust Note */}
+        {/* Safe Money Trust Note */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -124,7 +123,7 @@ export default function PaymentFailure() {
           be automatically reverted back by your bank within 2-3 working days.
         </motion.p>
 
-        {/* 🛠️ Step 3: Navigation Recovery Controls */}
+        {/* Step 3: Navigation Recovery Controls */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -8,15 +8,15 @@ export default function BillingTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [purchaseHistory, setPurchaseHistory] = useState([]);
-  const [totalInterviews, setTotalInterviews] = useState(0); // 🚀 Real DB Count State
+  const [totalInterviews, setTotalInterviews] = useState(0); // Real DB Count State
 
-  // 📡 1. Load wallet credit balance directly out of Redux
+  // 1. Load wallet credit balance directly out of Redux
   const user = useSelector((state) => state.user);
   const currentCredits = user?.userData?.credits ?? 0;
 
   const serverUrl = import.meta.env.VITE_SERVER_URL || "";
 
-  // 📡 2. PARALLEL SYNC: Fetch statement list AND actual attempted interviews count
+  // 2. PARALLEL SYNC: Fetch statement list AND actual attempted interviews count
   useEffect(() => {
     let isMounted = true;
 

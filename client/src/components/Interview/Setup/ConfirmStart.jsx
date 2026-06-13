@@ -1,4 +1,3 @@
-// src/components/Interview/Setup/ConfirmStart.jsx
 import React from "react";
 import { useTheme } from "../../../context/ThemeContext";
 import {

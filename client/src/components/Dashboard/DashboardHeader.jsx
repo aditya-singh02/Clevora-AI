@@ -76,7 +76,7 @@ export default function DashboardHeader({ user }) {
               rounded={
                 dropdownOpen ? "rounded-t-xl rounded-b-none" : "rounded-xl"
               }
-              // 🚀 Background matching the native card structure
+              //  native card structure
               className={`flex items-center gap-2.5 flex-shrink-0 cursor-pointer border select-none transition-all duration-150 ${
                 dropdownOpen
                   ? "bg-[#090d1a] border-white/[0.08] border-b-transparent"
@@ -97,7 +97,7 @@ export default function DashboardHeader({ user }) {
             </GlassCard>
           </div>
 
-          {/* EXTENSION DROPDOWN PANEL */}
+          {/*  DROPDOWN PANEL */}
           <AnimatePresence>
             {dropdownOpen && (
               <motion.div

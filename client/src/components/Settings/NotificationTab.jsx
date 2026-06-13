@@ -63,7 +63,6 @@ export default function NotificationsTab() {
 
   return (
     <div className="space-y-5">
-      {/* List layout to seamlessly blend with Screenshot 2026-06-11 at 2.28.37 AM.jpg design standard */}
       <div className="divide-y divide-white/[0.05] border-b border-white/[0.05]">
         {rows.map((item) => (
           <div

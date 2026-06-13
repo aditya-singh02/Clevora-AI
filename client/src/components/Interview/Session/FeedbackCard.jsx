@@ -1,4 +1,3 @@
-// src/components/Interview/Session/FeedbackCard.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { TbMessageCode, TbArrowNarrowRight } from "react-icons/tb";

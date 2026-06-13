@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ServerURL } from "../App.jsx"; // Check directory path carefully
+import { ServerURL } from "../App.jsx"; 
 
 export function useGetAllInterviews() {
     const [interviews, setInterviews] = useState([]);

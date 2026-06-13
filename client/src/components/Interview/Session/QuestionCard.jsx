@@ -1,4 +1,3 @@
-// src/components/Interview/Setup/QuestionCard.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TbBookmark } from 'react-icons/tb';

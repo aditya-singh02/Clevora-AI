@@ -51,7 +51,7 @@ const userState = useSelector((state) => state.user);
     }
   };
 
-  // 🚨 Account Deletion Execution
+  //  Account Deletion Execution
   const handleDeleteProfile = async () => {
     if (
       !window.confirm(
@@ -68,11 +68,11 @@ const userState = useSelector((state) => state.user);
       if (res.data?.success) {
         dispatch(clearUserData());
 
-        // 🔒 2. HARD CLEAR BROWSER STORAGE SESSIONS
+        // 2. HARD CLEAR BROWSER STORAGE SESSIONS
         localStorage.clear();
         sessionStorage.clear();
 
-        // 🔒 3. REDIRECT TO ROOT OR LOGIN
+        //3. REDIRECT TO ROOT OR LOGIN
         window.location.href = "/";
       }
     } catch (err) {

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NeuralBg } from "../components/ui/NeuralBg.jsx";
 import { useCursorGlow } from "../hooks/useCursorGlow.js";
-import { useGetAllInterviews } from "../hooks/useGetAllInterviews.js"; // 🚀 Centralized Hook Connected Safely
+import { useGetAllInterviews } from "../hooks/useGetAllInterviews.js"; // Centralized Hook Connected Safely
 import {
   BsClockHistory,
   BsSearch,
@@ -21,7 +21,7 @@ function scoreColor(score) {
 }
 
 export default function HistoryPage() {
-  // 🚀 FETCH DATA DIRECTLY FROM YOUR CENTRALIZED HOOK (Zero local axios calls)
+  // FETCH DATA DIRECTLY FROM YOUR CENTRALIZED HOOK (Zero local axios calls)
   const { interviews, loading, error } = useGetAllInterviews();
 
   // Search aur Filters State
@@ -31,7 +31,7 @@ export default function HistoryPage() {
   const glowData = useCursorGlow() || {};
   const { x, y, ...cursorHandlers } = glowData;
 
-  // 🎛️ Filter aur Search Logic (Stays completely intact)
+  // Filter aur Search Logic (Stays completely intact)
   const filteredInterviews = interviews.filter((item) => {
     const matchesSearch = item.role
       ?.toLowerCase()
@@ -90,7 +90,7 @@ export default function HistoryPage() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 md:px-14 py-14 space-y-8">
-        {/* ── HEADER ────────────────────────────────────────────────────── */}
+        {/* ── HEADER ───────────── */}
         <div className="border-b border-white/[0.05] pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* ── SEARCH & FILTERS ROW ────────────────────────────────────────── */}
+        {/* ── SEARCH & FILTERS ROW ────────────── */}
         <div className="flex flex-col sm:flex-row gap-3 w-full">
           {/* Search Box */}
           <div className="relative flex-1">
@@ -153,7 +153,7 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* ── HISTORY DATA LIST CONTAINER ─────────────────────────────────── */}
+        {/* ── HISTORY DATA LIST CONTAINER ────────────── */}
         <div>
           {loading ? (
             <div className="py-20 flex flex-col items-center justify-center gap-2 text-[11px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
@@ -232,7 +232,7 @@ export default function HistoryPage() {
                         {badge.text}
                       </div>
 
-                      {/* 🔒 UNCHANGED CORE ROUTE REDIRECTION */}
+                      {/* UNCHANGED CORE ROUTE REDIRECTION */}
                       <button
                         type="button"
                         onClick={() =>

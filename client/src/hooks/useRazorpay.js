@@ -1,7 +1,5 @@
-// src/hooks/useRazorpay.js
 // Loads the Razorpay checkout script dynamically.
 // Singleton pattern — script is only ever appended once per browser session.
-
 import { useState, useEffect, useCallback } from "react";
 
 const SDK_URL = "https://checkout.razorpay.com/v1/checkout.js";

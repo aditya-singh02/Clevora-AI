@@ -17,7 +17,7 @@ export default function AnswerPanel({
   onSubmit,
   isSubmitting,
 }) {
-  // 🚀 CUSTOM WRAPPER TRIGGER
+  // CUSTOM WRAPPER TRIGGER
   const handleFinalSubmit = () => {
     if (!transcript.trim()) return;
     // Context variable content directly passes to InterviewSession container hook node
@@ -71,7 +71,7 @@ export default function AnswerPanel({
           <textarea
             value={transcript}
             onChange={(e) => setTranscript(e.target.value)}
-            // 🚀 FIXED: Disabled flag locked manually text typing only when background evaluation engine is active
+            //  Disabled flag locked manually text typing only when background evaluation engine is active
             disabled={isSubmitting}
             placeholder="Click Start Recording to speak, or directly click here to type your technical response layout manually..."
             className="w-full h-28 p-3 bg-slate-950/40 border border-white/[0.04] rounded-xl text-xs text-slate-300 font-mono focus:outline-none focus:border-indigo-500/30 transition-colors resize-none shadow-inner leading-relaxed placeholder:text-slate-700"

@@ -19,7 +19,7 @@ export default function useInterviewSetup() {
     });
 
     const handleFileChange = (selectedFile) => {
-        // 🚨 FIXED: Agar null aaye (Swap click karne par), toh poori state flush clear kar do
+        // FIXED: Agar null aaye (Swap click karne par), toh poori state flush clear kar do
         if (selectedFile === null) {
             setFile(null);
             setExtractedData(null);
@@ -120,13 +120,13 @@ export default function useInterviewSetup() {
                 const nestedData = response.data?.data;
                 const interviewId = nestedData?.interviewId || nestedData?._id || nestedData?.id;
 
-                // 🚀 FRESH REAL QUESTIONS EXTRACTED FROM BACKEND OBJECT TREE
+                //  FRESH REAL QUESTIONS EXTRACTED FROM BACKEND OBJECT TREE
                 const backendQuestions = nestedData?.questions || response.data?.questions || [];
 
                 console.log("Hook -> Sending ID and real questions to callback:", interviewId, backendQuestions);
 
                 if (interviewId) {
-                    // 🚀 FIXED: Dono parameters sath mein bheje
+                    // FIXED: Dono parameters sath mein bheje
                     onSuccess(interviewId, backendQuestions);
                 } else {
                     alert("Session initialized but unique identifier key structure is unmapped!");

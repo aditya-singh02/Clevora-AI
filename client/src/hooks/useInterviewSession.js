@@ -50,7 +50,7 @@ export function useInterviewSession({ interviewId, questions = [] }) {
                     questionId: currentQuestion._id,
                     answer: answerText.trim(),
                     timeTaken,
-                    integrity: integrityStats // 🤝 Passing logs straight to backend database
+                    integrity: integrityStats // Passing logs straight to backend database
                 },
                 { withCredentials: true }
             )
@@ -104,7 +104,7 @@ export function useInterviewSession({ interviewId, questions = [] }) {
         }
     }, [isLastQuestion, interviewId])
 
-    // 🚀 FIXED: Corrected route mapping template string path pattern match
+    // FIXED: Corrected route mapping template string path pattern match
     const handleEndInterview = useCallback(async (integrityReport = null) => {
         setIsEnding(true)
         clearInterval(timerRef.current)
@@ -116,7 +116,7 @@ export function useInterviewSession({ interviewId, questions = [] }) {
                 { withCredentials: true }
             )
 
-            // 🎯 Fixed route destination to match App.jsx perfectly
+            // Fixed route destination to match App.jsx perfectly
             setTimeout(() => {
                 navigate(`/interview/report/${interviewId}`, { state: { report: data.data } });
             }, 2000); // 2 seconds buffer so user sees report card compilation state screen smoothly

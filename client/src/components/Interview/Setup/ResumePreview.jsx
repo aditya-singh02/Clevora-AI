@@ -1,4 +1,3 @@
-// src/components/Interview/Setup/ResumePreview.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import {
@@ -36,7 +35,7 @@ export default function ResumePreview({
               <p className="text-sm font-black text-slate-200 truncate">
                 {file?.name || "Resume.pdf"}
               </p>
-              {/* 🚨 CHANGED: Simple user language */}
+              
               <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
                 Resume Connected Successfully
               </p>
@@ -53,7 +52,6 @@ export default function ResumePreview({
 
         {/* 1. Target Job Role */}
         <div className="space-y-2">
-          {/* 🚨 CHANGED: Target Profile Role -> Target Job Role */}
           <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
             <TbBriefcase size={16} className="text-indigo-400" /> Target Job
             Role
@@ -68,7 +66,6 @@ export default function ResumePreview({
 
         {/* 2. Your Skills */}
         <div className="space-y-2">
-          {/* 🚨 CHANGED: Extracted Skill Matrix -> Your Skills */}
           <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
             <TbCode size={16} className="text-emerald-400" /> Your Skills
           </label>
@@ -86,7 +83,6 @@ export default function ResumePreview({
 
         {/* 3. Your Projects */}
         <div className="space-y-2">
-          {/* 🚨 CHANGED: Verified Project Contexts -> Your Projects */}
           <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
             <TbLayersIntersect size={16} className="text-cyan-400" /> Your
             Projects

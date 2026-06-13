@@ -17,7 +17,7 @@ import {
 export default function StatsCards({ user }) {
   const { dark } = useTheme();
 
-  // 🚀 SINGLE LINE DATA FETCH FROM YOUR HOOK
+  // SINGLE LINE DATA FETCH FROM YOUR HOOK
   const { interviews, loading } = useGetAllInterviews();
 
   // Base Data Mapping

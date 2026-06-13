@@ -1,4 +1,3 @@
-// src/pages/PaymentPage.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { TbActivity, TbAlertTriangle, TbShieldLock } from "react-icons/tb";
@@ -22,24 +21,24 @@ export default function PaymentPage() {
 
   return (
     <div className="dark min-h-screen w-full bg-[#030712] text-slate-200 py-16 px-4 sm:px-6 relative overflow-hidden flex flex-col justify-start select-none font-sans">
-      {/* 🚀 1. Non-blocking Global Alert Banner (Top of screen) */}
+      {/*  1. Non-blocking Global Alert Banner (Top of screen) */}
 
       <div className="w-full max-w-md mx-auto mb-4">
         <PaymentStatusBanner status={status} onClose={clearStatus} />
       </div>
 
-      {/* 🚀 2. Full Screen Safety Blocker */}
+      {/*  2. Full Screen Safety Blocker */}
       <LoadingOverlay isOpen={isLoading} message={overlayMsg} />
 
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full blur-[160px] bg-indigo-500/[0.08] pointer-events-none" />
 
-      {/* 🔮 High-End Neural Ambient Glows */}
+      {/*  High-End Neural Ambient Glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full blur-[160px] bg-indigo-500/[0.08] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] rounded-full blur-[180px] bg-purple-500/[0.06] pointer-events-none" />
 
       {/* Global layout container */}
       <div className="w-full max-w-5xl mx-auto relative z-10 space-y-8 mt-4 mb-12">
-        {/* 🔥 Header Announcement Section */}
+        {/* Header Announcement Section */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -74,7 +73,7 @@ export default function PaymentPage() {
           </motion.p>
         </div>
 
-        {/* ⚠️ Razorpay Connection/Ad-Blocker Error Handling */}
+        {/*  Razorpay Connection/Ad-Blocker Error Handling */}
         {sdkError && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -92,7 +91,7 @@ export default function PaymentPage() {
           </motion.div>
         )}
 
-        {/* 🪙 Wallet Badge Tracker */}
+        {/*  Wallet Badge Tracker */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,7 +122,7 @@ export default function PaymentPage() {
           </div>
         </motion.div>
 
-        {/* 📦 Pricing Cards Grid Layout Section */}
+        {/* Pricing Cards Grid Layout Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -148,7 +147,7 @@ export default function PaymentPage() {
             ))}
         </motion.div>
 
-        {/* 📊 High Trust Grid Badges Section */}
+        {/*  High Trust Grid Badges Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -191,7 +190,7 @@ export default function PaymentPage() {
           </div>
         </motion.div>
 
-        {/* 🔒 Footer Security Trust Anchor */}
+        {/*  Footer Security Trust Anchor */}
         <div className="flex items-center justify-center gap-2 text-slate-500 text-xs font-medium pt-4 border-t border-white/[0.04] max-w-xs mx-auto">
           <TbShieldLock size={20} className="text-indigo-400" />
           <span className="font-mono text-[11px] tracking-tight font-semibold">
