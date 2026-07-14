@@ -73,13 +73,13 @@ export default function useInterviewSetup() {
             }
         } catch (error) {
             console.error('Resume upload parsing failed:', error);
-            alert('Resume analyze karne me dikkat aayi. Fallback profile state active ki ja rhi h.');
+            alert('Resume analysis failed. Please ensure the file is a valid PDF and try again.');
 
             const fallbackData = {
                 role: 'Full Stack Web Developer',
                 experience: 'Fresher',
                 skills: ['React', 'Node.js', 'MongoDB', 'Express.js', 'C++', 'DSA'],
-                projects: ['Smart Keypad Door Lock System', 'Autonomous Route Finder'],
+                projects: ['Clevora-AI', 'GreenLens-AI'],
                 education: 'IET DAVV'
             };
             setExtractedData(fallbackData);

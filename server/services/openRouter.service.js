@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {ApiError} from '../utils/ApiError.js';
 import dotenv from 'dotenv';
+import { ApiError } from '../utils/ApiError.js';
 
 dotenv.config();
 
@@ -19,26 +19,26 @@ const askAI = async (messages) => {
 
         const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
             // model: 'openai/gpt-4o-mini',
-            // model: 'openrouter/free',
-            model: 'openai/gpt-oss-120b:free' ,
+            model: 'openrouter/free',
+            // model: 'openai/gpt-oss-120b:free' ,
             messages: messages,
         },
-             {
+            {
                 headers: {
-                     Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
                     'Content-Type': 'application/json',
                 },
             });
 
-        const aiResponse = response?.data?.choices?.[0]?.message?.content; 
+        const aiResponse = response?.data?.choices?.[0]?.message?.content;
 
-        if(!aiResponse || !aiResponse.trim()) { // Validate that the response is not empty or just whitespace
+        if (!aiResponse || !aiResponse.trim()) { // Validate that the response is not empty or just whitespace
             throw new ApiError(500, 'AI response is empty or invalid');
         }
-            return aiResponse;
-            
+        return aiResponse;
+
     } catch (error) {
-        console.error('OpenRouter API error:', error.response?.data || error.message || error); 
+        console.error('OpenRouter API error:', error.response?.data || error.message || error);
         throw new ApiError(500, 'Failed to get response from OpenRouter API');
     }
 }
