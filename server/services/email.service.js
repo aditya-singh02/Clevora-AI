@@ -1,16 +1,24 @@
 import nodemailer from "nodemailer"
 import { ApiError } from "../utils/ApiError.js"
 import dotenv from "dotenv"
+import dns from "dns"
 
 dotenv.config();
 
+// Force Node to prefer IPv4 addresses first
+dns.setDefaultResultOrder('ipv4first');
+
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS    
-    }
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
 })
+
+console.log("Transporter options:", transporter.options);
 
 const sendPasswordResetEmail = async ({ email, resetUrl, name }) => {
     try {
