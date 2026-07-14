@@ -53,6 +53,7 @@ export default function useInterviewSetup() {
         try {
             const response = await axios.post('/api/v1/interview/resume', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
+                withCredentials: true,
             });
 
             // Your backend returns: res.json(new ApiResponse(200, structuredData, ...))
@@ -113,7 +114,9 @@ export default function useInterviewSetup() {
             };
 
             console.log("Starting interview session with payload:", payload);
-            const response = await axios.post('/api/v1/interview/start', payload);
+            const response = await axios.post('/api/v1/interview/start', payload,{
+                withCredentials: true,
+            });
             console.log("Response from start interview:", response.data);
 
             if (response.data?.success) {
