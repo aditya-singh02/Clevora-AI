@@ -5,17 +5,19 @@ import dns from "dns"
 
 dotenv.config();
 
-// Force Node to prefer IPv4 addresses first
 dns.setDefaultResultOrder('ipv4first');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
 })
 
 console.log("Transporter options:", transporter.options);
